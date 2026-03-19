@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How Systems Talk to Each Other</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F9FAFB; color: #111827; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
+
+    const patterns = [
+      {
+        id: "api",
+        title: "API (Request–Response)",
+        analogy: "A phone call",
+        analogyDetail: "You call, ask a question, wait on the line, get an answer. Both sides must be available.",
+        color: "#3B82F6",
+        lightColor: "#EFF6FF",
+        icon: "\u{1F4DE}",
+        speed: "Immediate",
+        coupling: "Tight",
+        bestFor: "User-facing requests, data lookups",
+        example: "You open your banking app \u2192 your phone calls the bank\u2019s server \u2192 it replies with your balance \u2192 you see it on screen.",
+        strengths: ["Simple and direct", "Immediate response", "Easy to understand"],
+        weaknesses: ["Both systems must be up", "Can get overwhelmed at scale", "Tightly coupled"],
+        diagram: (
+          <svg viewBox="0 0 440 120" style={{ width: "100%", maxWidth: 440 }}>
+            <rect x="10" y="30" width="110" height="60" rx="12" fill="#3B82F6" opacity="0.15" stroke="#3B82F6" strokeWidth="2"/>
+            <text x="65" y="65" textAnchor="middle" fontSize="13" fontWeight="600" fill="#1E40AF">Service A</text>
+            <rect x="320" y="30" width="110" height="60" rx="12" fill="#3B82F6" opacity="0.15" stroke="#3B82F6" strokeWidth="2"/>
+            <text x="375" y="65" textAnchor="middle" fontSize="13" fontWeight="600" fill="#1E40AF">Service B</text>
+            <line x1="120" y1="48" x2="310" y2="48" stroke="#3B82F6" strokeWidth="2" markerEnd="url(#arrowBlue)"/>
+            <text x="215" y="42" textAnchor="middle" fontSize="11" fill="#3B82F6" fontWeight="500">Request →</text>
+            <line x1="310" y1="72" x2="120" y2="72" stroke="#93C5FD" strokeWidth="2" strokeDasharray="6,4" markerEnd="url(#arrowLightBlue)"/>
+            <text x="215" y="88" textAnchor="middle" fontSize="11" fill="#60A5FA" fontWeight="500">← Response</text>
+            <defs>
+              <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#3B82F6"/></marker>
+              <marker id="arrowLightBlue" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto"><path d="M8,0 L0,3 L8,6" fill="#60A5FA"/></marker>
+            </defs>
+          </svg>
+        ),
+      },
+      {
+        id: "mq",
+        title: "Message Queue (MQ)",
+        analogy: "Leaving a task in someone\u2019s inbox",
+        analogyDetail: "You drop a note in their tray and walk away. They get to it when they can. If they\u2019re out, it waits.",
+        color: "#10B981",
+        lightColor: "#ECFDF5",
+        icon: "\u{1F4E5}",
+        speed: "Delayed (background)",
+        coupling: "Loose",
+        bestFor: "Background tasks, one worker per job",
+        example: "You upload a video \u2192 it goes on a queue \u2192 a worker picks it up, converts it \u2192 you get notified when it\u2019s done.",
+        strengths: ["Sender doesn\u2019t wait", "Messages survive crashes", "Handles traffic spikes gracefully"],
+        weaknesses: ["No instant answer", "More complex to set up", "Not for user-facing requests"],
+        diagram: (
+          <svg viewBox="0 0 440 120" style={{ width: "100%", maxWidth: 440 }}>
+            <rect x="10" y="35" width="100" height="55" rx="12" fill="#10B981" opacity="0.15" stroke="#10B981" strokeWidth="2"/>
+            <text x="60" y="67" textAnchor="middle" fontSize="13" fontWeight="600" fill="#065F46">Sender</text>
+            <rect x="160" y="35" width="120" height="55" rx="8" fill="#FEF3C7" stroke="#F59E0B" strokeWidth="2"/>
+            <text x="220" y="58" textAnchor="middle" fontSize="11" fontWeight="600" fill="#92400E">Queue</text>
+            {[0,1,2,3].map(i => <rect key={i} x={172+i*26} y={65} width="20" height="16" rx="3" fill="#FBBF24" opacity={0.5+i*0.15}/>)}
+            <rect x="330" y="35" width="100" height="55" rx="12" fill="#10B981" opacity="0.15" stroke="#10B981" strokeWidth="2"/>
+            <text x="380" y="67" textAnchor="middle" fontSize="13" fontWeight="600" fill="#065F46">Worker</text>
+            <line x1="110" y1="62" x2="155" y2="62" stroke="#10B981" strokeWidth="2" markerEnd="url(#arrowGreen)"/>
+            <line x1="285" y1="62" x2="325" y2="62" stroke="#10B981" strokeWidth="2" markerEnd="url(#arrowGreen2)"/>
+            <defs>
+              <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#10B981"/></marker>
+              <marker id="arrowGreen2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#10B981"/></marker>
+            </defs>
+          </svg>
+        ),
+      },
+      {
+        id: "pubsub",
+        title: "Publish / Subscribe (Pub/Sub)",
+        analogy: "A group announcement board",
+        analogyDetail: "Someone pins a notice. Anyone interested reads it. The poster doesn\u2019t know or care who\u2019s reading.",
+        color: "#8B5CF6",
+        lightColor: "#F5F3FF",
+        icon: "\u{1F4E2}",
+        speed: "Near real-time",
+        coupling: "Very loose",
+        bestFor: "One event triggers many systems",
+        example: "A customer places an order \u2192 one announcement goes out \u2192 billing, warehouse, and email all hear it independently.",
+        strengths: ["Fully decoupled", "Easy to add new subscribers", "One event, many reactions"],
+        weaknesses: ["Fire-and-forget risk", "Harder to track messages", "More moving parts"],
+        diagram: (
+          <svg viewBox="0 0 440 160" style={{ width: "100%", maxWidth: 440 }}>
+            <rect x="10" y="55" width="100" height="50" rx="12" fill="#8B5CF6" opacity="0.15" stroke="#8B5CF6" strokeWidth="2"/>
+            <text x="60" y="84" textAnchor="middle" fontSize="12" fontWeight="600" fill="#5B21B6">Publisher</text>
+            <ellipse cx="220" cy="80" rx="50" ry="28" fill="#F5F3FF" stroke="#8B5CF6" strokeWidth="2"/>
+            <text x="220" y="84" textAnchor="middle" fontSize="11" fontWeight="600" fill="#5B21B6">Topic</text>
+            <rect x="330" y="5" width="100" height="40" rx="10" fill="#8B5CF6" opacity="0.1" stroke="#8B5CF6" strokeWidth="1.5"/>
+            <text x="380" y="29" textAnchor="middle" fontSize="11" fontWeight="600" fill="#5B21B6">Billing</text>
+            <rect x="330" y="60" width="100" height="40" rx="10" fill="#8B5CF6" opacity="0.1" stroke="#8B5CF6" strokeWidth="1.5"/>
+            <text x="380" y="84" textAnchor="middle" fontSize="11" fontWeight="600" fill="#5B21B6">Warehouse</text>
+            <rect x="330" y="115" width="100" height="40" rx="10" fill="#8B5CF6" opacity="0.1" stroke="#8B5CF6" strokeWidth="1.5"/>
+            <text x="380" y="139" textAnchor="middle" fontSize="11" fontWeight="600" fill="#5B21B6">Email</text>
+            <line x1="110" y1="80" x2="167" y2="80" stroke="#8B5CF6" strokeWidth="2" markerEnd="url(#arrowPurp)"/>
+            <line x1="270" y1="68" x2="325" y2="28" stroke="#8B5CF6" strokeWidth="1.5" markerEnd="url(#arrowPurp2)"/>
+            <line x1="270" y1="80" x2="325" y2="80" stroke="#8B5CF6" strokeWidth="1.5" markerEnd="url(#arrowPurp2)"/>
+            <line x1="270" y1="92" x2="325" y2="132" stroke="#8B5CF6" strokeWidth="1.5" markerEnd="url(#arrowPurp2)"/>
+            <defs>
+              <marker id="arrowPurp" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#8B5CF6"/></marker>
+              <marker id="arrowPurp2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#8B5CF6"/></marker>
+            </defs>
+          </svg>
+        ),
+      },
+      {
+        id: "streaming",
+        title: "Event Streaming",
+        analogy: "A live news ticker with a permanent archive",
+        analogyDetail: "Events scroll by in real time, but the full history is stored. New viewers can rewind and catch up.",
+        color: "#F59E0B",
+        lightColor: "#FFFBEB",
+        icon: "\u{1F4DC}",
+        speed: "Real-time + history",
+        coupling: "Very loose",
+        bestFor: "High-volume data, audit trails, replay",
+        example: "A ride-sharing app streams millions of GPS pings \u2192 pricing, maps, and analytics all read the same stream independently.",
+        strengths: ["Massive scale", "Full ordered history", "New systems can replay past events"],
+        weaknesses: ["Complex to operate", "Can be overkill", "Requires expertise"],
+        diagram: (
+          <svg viewBox="0 0 440 150" style={{ width: "100%", maxWidth: 440 }}>
+            <rect x="10" y="45" width="90" height="45" rx="10" fill="#F59E0B" opacity="0.15" stroke="#F59E0B" strokeWidth="2"/>
+            <text x="55" y="72" textAnchor="middle" fontSize="12" fontWeight="600" fill="#92400E">Producer</text>
+            <rect x="130" y="35" width="180" height="65" rx="8" fill="#FFFBEB" stroke="#F59E0B" strokeWidth="2"/>
+            <text x="220" y="54" textAnchor="middle" fontSize="11" fontWeight="600" fill="#92400E">Event Stream (Log)</text>
+            {[0,1,2,3,4,5].map(i => <rect key={i} x={140+i*27} y={62} width="22" height="26" rx="4" fill="#FCD34D" opacity={0.4+i*0.1} stroke="#F59E0B" strokeWidth="1"/>)}
+            <text x="220" y="79" textAnchor="middle" fontSize="8" fill="#92400E">{"\u2192 time \u2192"}</text>
+            <rect x="345" y="15" width="90" height="35" rx="8" fill="#F59E0B" opacity="0.1" stroke="#F59E0B" strokeWidth="1.5"/>
+            <text x="390" y="37" textAnchor="middle" fontSize="10" fontWeight="600" fill="#92400E">Pricing</text>
+            <rect x="345" y="60" width="90" height="35" rx="8" fill="#F59E0B" opacity="0.1" stroke="#F59E0B" strokeWidth="1.5"/>
+            <text x="390" y="82" textAnchor="middle" fontSize="10" fontWeight="600" fill="#92400E">Maps</text>
+            <rect x="345" y="105" width="90" height="35" rx="8" fill="#F59E0B" opacity="0.1" stroke="#F59E0B" strokeWidth="1.5"/>
+            <text x="390" y="127" textAnchor="middle" fontSize="10" fontWeight="600" fill="#92400E">Analytics</text>
+            <line x1="100" y1="67" x2="126" y2="67" stroke="#F59E0B" strokeWidth="2" markerEnd="url(#arrowAmber)"/>
+            <line x1="312" y1="55" x2="342" y2="35" stroke="#F59E0B" strokeWidth="1.5" markerEnd="url(#arrowAmber2)"/>
+            <line x1="312" y1="67" x2="342" y2="77" stroke="#F59E0B" strokeWidth="1.5" markerEnd="url(#arrowAmber2)"/>
+            <line x1="312" y1="80" x2="342" y2="118" stroke="#F59E0B" strokeWidth="1.5" markerEnd="url(#arrowAmber2)"/>
+            <defs>
+              <marker id="arrowAmber" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#F59E0B"/></marker>
+              <marker id="arrowAmber2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#F59E0B"/></marker>
+            </defs>
+          </svg>
+        ),
+      },
+      {
+        id: "webhooks",
+        title: "Webhooks",
+        analogy: "\"Don\u2019t call us, we\u2019ll call you\"",
+        analogyDetail: "Instead of constantly checking, you give someone your number and they call you when something happens.",
+        color: "#EF4444",
+        lightColor: "#FEF2F2",
+        icon: "\u{1F514}",
+        speed: "When it happens",
+        coupling: "Moderate",
+        bestFor: "Notifications from third-party services",
+        example: "A payment goes through on Stripe \u2192 Stripe automatically calls your server to let you know \u2192 you update the order.",
+        strengths: ["Efficient \u2014 no polling", "Simple to set up", "Widely supported"],
+        weaknesses: ["Can miss events if you\u2019re down", "Depends on sender reliability", "Not for complex flows"],
+        diagram: (
+          <svg viewBox="0 0 440 120" style={{ width: "100%", maxWidth: 440 }}>
+            <rect x="10" y="30" width="120" height="60" rx="12" fill="#EF4444" opacity="0.12" stroke="#EF4444" strokeWidth="2"/>
+            <text x="70" y="55" textAnchor="middle" fontSize="12" fontWeight="600" fill="#991B1B">Stripe</text>
+            <text x="70" y="72" textAnchor="middle" fontSize="10" fill="#B91C1C">(external service)</text>
+            <rect x="310" y="30" width="120" height="60" rx="12" fill="#EF4444" opacity="0.12" stroke="#EF4444" strokeWidth="2"/>
+            <text x="370" y="55" textAnchor="middle" fontSize="12" fontWeight="600" fill="#991B1B">Your Server</text>
+            <text x="370" y="72" textAnchor="middle" fontSize="10" fill="#B91C1C">(webhook URL)</text>
+            <path d="M135,50 Q220,10 305,50" fill="none" stroke="#EF4444" strokeWidth="2" markerEnd="url(#arrowRed)"/>
+            <text x="220" y="28" textAnchor="middle" fontSize="11" fill="#EF4444" fontWeight="500">"Payment succeeded!"</text>
+            <defs>
+              <marker id="arrowRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#EF4444"/></marker>
+            </defs>
+          </svg>
+        ),
+      },
+    ];
+
+    const compData = [
+      { pattern: "API", speed: "Immediate", coupling: "Tight", bestFor: "User-facing requests", color: "#3B82F6" },
+      { pattern: "Message Queue", speed: "Background", coupling: "Loose", bestFor: "Background tasks", color: "#10B981" },
+      { pattern: "Pub/Sub", speed: "Near real-time", coupling: "Very loose", bestFor: "One event \u2192 many reactions", color: "#8B5CF6" },
+      { pattern: "Event Streaming", speed: "Real-time + history", coupling: "Very loose", bestFor: "High-volume data & replay", color: "#F59E0B" },
+      { pattern: "Webhooks", speed: "When it happens", coupling: "Moderate", bestFor: "Third-party notifications", color: "#EF4444" },
+    ];
+
+    function Card({ p, isOpen, onClick }) {
+      return (
+        <div
+          onClick={onClick}
+          style={{
+            border: "2px solid " + (isOpen ? p.color : "#E5E7EB"),
+            borderRadius: 16,
+            marginBottom: 16,
+            background: isOpen ? p.lightColor : "#fff",
+            cursor: "pointer",
+            transition: "all 0.25s ease",
+            overflow: "hidden",
+            boxShadow: isOpen ? "0 4px 24px " + p.color + "22" : "0 1px 4px #0001",
+          }}
+        >
+          <div style={{ padding: "20px 24px", display: "flex", alignItems: "center", gap: 16 }}>
+            <span style={{ fontSize: 32 }}>{p.icon}</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#1F2937" }}>{p.title}</div>
+              <div style={{ fontSize: 14, color: "#6B7280", marginTop: 2, fontStyle: "italic" }}>
+                Analogy: {p.analogy}
+              </div>
+            </div>
+            <div style={{
+              width: 32, height: 32, borderRadius: 99, background: p.color + "18",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 18, color: p.color, fontWeight: 700,
+              transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+              transition: "transform 0.25s ease"
+            }}>{"\u25BE"}</div>
+          </div>
+
+          {isOpen && (
+            <div style={{ padding: "0 24px 24px" }}>
+              <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.6, margin: "0 0 16px" }}>
+                {p.analogyDetail}
+              </p>
+              <div style={{ margin: "16px 0", display: "flex", justifyContent: "center" }}>
+                {p.diagram}
+              </div>
+              <div style={{
+                background: "#F9FAFB",
+                borderRadius: 12,
+                padding: 16,
+                margin: "16px 0",
+                borderLeft: "4px solid " + p.color,
+              }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: p.color, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>
+                  Real-world example
+                </div>
+                <div style={{ fontSize: 14, color: "#374151", lineHeight: 1.6 }}>{p.example}</div>
+              </div>
+              <div style={{ display: "flex", gap: 12, marginTop: 16, flexWrap: "wrap" }}>
+                <div style={{ flex: "1 1 200px" }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#059669", marginBottom: 8 }}>STRENGTHS</div>
+                  {p.strengths.map((s, i) => (
+                    <div key={i} style={{ fontSize: 13, color: "#374151", padding: "4px 0", display: "flex", gap: 6 }}>
+                      <span style={{ color: "#10B981" }}>{"\u2713"}</span> {s}
+                    </div>
+                  ))}
+                </div>
+                <div style={{ flex: "1 1 200px" }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#DC2626", marginBottom: 8 }}>TRADE-OFFS</div>
+                  {p.weaknesses.map((w, i) => (
+                    <div key={i} style={{ fontSize: 13, color: "#374151", padding: "4px 0", display: "flex", gap: 6 }}>
+                      <span style={{ color: "#EF4444" }}>{"\u2717"}</span> {w}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 8, marginTop: 16, flexWrap: "wrap" }}>
+                {[["Speed", p.speed], ["Coupling", p.coupling], ["Best for", p.bestFor]].map(([label, val]) => (
+                  <span key={label} style={{
+                    background: p.color + "15",
+                    color: p.color,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    padding: "4px 12px",
+                    borderRadius: 99,
+                    border: "1px solid " + p.color + "30",
+                  }}>
+                    {label}: {val}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function App() {
+      const [openId, setOpenId] = useState("api");
+
+      return (
+        <div style={{ maxWidth: 680, margin: "0 auto", padding: "32px 16px" }}>
+          <div style={{ textAlign: "center", marginBottom: 36 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#6B7280", textTransform: "uppercase", letterSpacing: 2, marginBottom: 8 }}>
+              Non-Technical Guide
+            </div>
+            <h1 style={{ fontSize: 28, fontWeight: 800, color: "#111827", margin: 0, lineHeight: 1.3 }}>
+              How Systems Talk to Each Other
+            </h1>
+            <p style={{ fontSize: 15, color: "#6B7280", marginTop: 8, lineHeight: 1.5 }}>
+              Five patterns that power modern software — explained with analogies, diagrams, and real examples.
+              <br />Click each card to explore.
+            </p>
+          </div>
+
+          {patterns.map((p) => (
+            <Card
+              key={p.id}
+              p={p}
+              isOpen={openId === p.id}
+              onClick={() => setOpenId(openId === p.id ? null : p.id)}
+            />
+          ))}
+
+          <div style={{
+            marginTop: 32,
+            borderRadius: 16,
+            border: "2px solid #E5E7EB",
+            overflow: "hidden",
+            background: "#fff",
+          }}>
+            <div style={{ padding: "20px 24px", background: "#F9FAFB", borderBottom: "1px solid #E5E7EB" }}>
+              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#111827" }}>Comparison at a Glance</h2>
+            </div>
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                <thead>
+                  <tr style={{ background: "#F9FAFB" }}>
+                    {["Pattern", "Speed", "Coupling", "Best For"].map(h => (
+                      <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontWeight: 700, color: "#6B7280", fontSize: 11, textTransform: "uppercase", letterSpacing: 0.5, borderBottom: "1px solid #E5E7EB" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {compData.map((r, i) => (
+                    <tr key={i} style={{ borderBottom: i < compData.length - 1 ? "1px solid #F3F4F6" : "none" }}>
+                      <td style={{ padding: "12px 16px", fontWeight: 700 }}>
+                        <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: 99, background: r.color, marginRight: 8, verticalAlign: "middle" }} />
+                        {r.pattern}
+                      </td>
+                      <td style={{ padding: "12px 16px", color: "#374151" }}>{r.speed}</td>
+                      <td style={{ padding: "12px 16px", color: "#374151" }}>{r.coupling}</td>
+                      <td style={{ padding: "12px 16px", color: "#374151" }}>{r.bestFor}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div style={{
+            marginTop: 32,
+            padding: 24,
+            borderRadius: 16,
+            background: "linear-gradient(135deg, #EFF6FF, #F5F3FF, #ECFDF5)",
+            border: "1px solid #E5E7EB",
+          }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: "#111827", margin: "0 0 12px" }}>
+              How They Work Together
+            </h2>
+            <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.7, margin: 0 }}>
+              In practice, most products use several of these at once. A typical e-commerce flow: a customer places an order through the <strong style={{ color: "#3B82F6" }}>API</strong> (they need instant confirmation). That triggers a <strong style={{ color: "#8B5CF6" }}>pub/sub</strong> event. The email service subscribes and sends a receipt. The warehouse subscribes and drops a fulfillment task onto a <strong style={{ color: "#10B981" }}>message queue</strong>. Every event flows into a <strong style={{ color: "#F59E0B" }}>Kafka stream</strong> for analytics. Stripe confirms the payment via a <strong style={{ color: "#EF4444" }}>webhook</strong>.
+            </p>
+            <p style={{ fontSize: 14, color: "#6B7280", lineHeight: 1.7, margin: "12px 0 0", fontStyle: "italic" }}>
+              No single pattern does everything. The art is knowing which one to use where.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
