@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="googlebot" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Risk Management Training & Intake — Concept Demo</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        brand: { 50: '#f0f4ff', 100: '#dbe4ff', 200: '#bac8ff', 300: '#91a7ff', 400: '#748ffc', 500: '#5c7cfa', 600: '#4c6ef5', 700: '#4263eb', 800: '#3b5bdb', 900: '#364fc7' },
+        surface: { 50: '#f8f9fa', 100: '#f1f3f5', 200: '#e9ecef', 300: '#dee2e6', 400: '#ced4da', 500: '#adb5bd', 600: '#868e96', 700: '#495057', 800: '#343a40', 900: '#212529' }
+      }
+    }
+  }
+}
+</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .slide { display: none; }
+  .slide.active { display: block; }
+  .fade-in { animation: fadeIn 0.4s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .nav-dot { transition: all 0.2s; }
+  .nav-dot.active { background: #4263eb; transform: scale(1.3); }
+  .step-card { transition: all 0.3s ease; }
+  .step-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+  .intake-field { transition: all 0.3s; }
+  .intake-field:focus-within { border-color: #4263eb; box-shadow: 0 0 0 3px rgba(66,99,235,0.1); }
+  .comparison-highlight { background: linear-gradient(120deg, #d3f9d8 0%, #d3f9d8 100%); padding: 2px 4px; border-radius: 3px; }
+  .progress-line { height: 3px; background: #e9ecef; position: relative; }
+  .progress-line-fill { height: 100%; background: #4263eb; transition: width 0.5s ease; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-thumb { background: #ced4da; border-radius: 3px; }
+</style>
+</head>
+<body class="bg-surface-50 text-surface-900">
+
+<!-- Navigation Bar -->
+<nav class="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-sm border-b border-surface-200 z-50 px-6 py-3">
+  <div class="max-w-6xl mx-auto flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-brand-700 rounded-lg flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+      </div>
+      <span class="font-semibold text-surface-800">Risk Management — Training & Maturity Uplift</span>
+    </div>
+    <div class="flex items-center gap-2" id="navDots"></div>
+    <div class="flex items-center gap-2">
+      <span class="text-sm text-surface-500" id="slideCounter">1 / 6</span>
+      <button onclick="prevSlide()" class="px-3 py-1.5 text-sm rounded-md border border-surface-300 hover:bg-surface-100 transition">Prev</button>
+      <button onclick="nextSlide()" class="px-3 py-1.5 text-sm rounded-md bg-brand-700 text-white hover:bg-brand-800 transition">Next</button>
+    </div>
+  </div>
+</nav>
+
+<div class="pt-16">
+
+<!-- ============ SLIDE 1: Title ============ -->
+<section class="slide active" data-title="Overview">
+  <div class="min-h-screen flex items-center justify-center px-6">
+    <div class="max-w-3xl text-center fade-in">
+      <div class="inline-flex items-center gap-2 px-4 py-2 bg-brand-100 text-brand-800 rounded-full text-sm font-medium mb-8">
+        Concept Presentation
+      </div>
+      <h1 class="text-5xl font-bold tracking-tight text-surface-900 mb-6">Learn by Doing,<br>Validate by Training</h1>
+      <p class="text-xl text-surface-600 mb-8 leading-relaxed">A unified approach to risk management training and tool adoption.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 2: The Problem ============ -->
+<section class="slide" data-title="Problem">
+  <div class="min-h-screen flex items-center justify-center px-6">
+    <div class="max-w-5xl w-full fade-in">
+      <h2 class="text-3xl font-bold mb-2">The Problem</h2>
+      <p class="text-surface-600 mb-10">It's not that people are untrained. It's that the system rewards the wrong behaviours.</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div class="step-card bg-white rounded-xl border border-surface-200 p-6">
+          <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          </div>
+          <h3 class="font-semibold mb-2">Low Maturity (~1/3)</h3>
+          <p class="text-sm text-surface-600">Risk applied inconsistently. Reactive instead of embedded. Same issues reoccur — learning loops are broken.</p>
+        </div>
+        <div class="step-card bg-white rounded-xl border border-surface-200 p-6">
+          <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+          </div>
+          <h3 class="font-semibold mb-2">Fragmented & Siloed</h3>
+          <p class="text-sm text-surface-600">Multiple disconnected processes. Inconsistent taxonomy. No end-to-end ownership. Tools mirror the fragmentation.</p>
+        </div>
+        <div class="step-card bg-white rounded-xl border border-surface-200 p-6">
+          <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+          </div>
+          <h3 class="font-semibold mb-2">No Visibility</h3>
+          <p class="text-sm text-surface-600">No single source of truth. Leadership reports take days of manual prep. Risk register creates false confidence.</p>
+        </div>
+      </div>
+
+      <div class="bg-surface-900 rounded-xl p-8 text-white">
+        <p class="text-lg font-medium mb-2">The insight</p>
+        <p class="text-surface-300 text-lg">Training people on the current broken process just produces well-trained people doing the wrong thing efficiently. The training must be <span class="text-white font-semibold">inseparable from the new process and the new tool</span>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 3: Three Layers ============ -->
+<section class="slide" data-title="Training Layers">
+  <div class="min-h-screen flex items-center justify-center px-6">
+    <div class="max-w-5xl w-full fade-in">
+      <h2 class="text-3xl font-bold mb-2">Three Training Layers</h2>
+      <p class="text-surface-600 mb-10">Each layer builds on the previous. Total session time: ~3 hours.</p>
+
+      <div class="space-y-6">
+        <!-- Layer 1 -->
+        <div class="step-card bg-white rounded-xl border border-surface-200 p-8">
+          <div class="flex items-start gap-6">
+            <div class="flex-shrink-0 w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center">
+              <span class="text-2xl font-bold text-amber-700">1</span>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center gap-3 mb-2">
+                <h3 class="text-xl font-semibold">Mindset Shift</h3>
+                <span class="text-xs font-medium px-2.5 py-1 bg-surface-100 text-surface-600 rounded-full">~45 min</span>
+              </div>
+              <p class="text-surface-600 mb-4">Proactive vs. Traditional — taught through contrast, not slides.</p>
+              <div class="grid grid-cols-3 gap-3 text-sm">
+                <div class="bg-surface-50 rounded-lg p-3">
+                  <p class="font-medium text-surface-700 mb-1">"Same Risk, Two Worlds"</p>
+                  <p class="text-surface-500">Facilitator walks one scenario both ways</p>
+                </div>
+                <div class="bg-surface-50 rounded-lg p-3">
+                  <p class="font-medium text-surface-700 mb-1">"Spot the Difference"</p>
+                  <p class="text-surface-500">Compare bad vs good risk statements</p>
+                </div>
+                <div class="bg-surface-50 rounded-lg p-3">
+                  <p class="font-medium text-surface-700 mb-1">"Cost of Bad Data"</p>
+                  <p class="text-surface-500">Real report from current vs clean data</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Layer 2 -->
+        <div class="step-card bg-white rounded-xl border border-surface-200 p-8">
+          <div class="flex items-start gap-6">
+            <div class="flex-shrink-0 w-14 h-14 bg-brand-100 rounded-xl flex items-center justify-center">
+              <span class="text-2xl font-bold text-brand-700">2</span>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center gap-3 mb-2">
+                <h3 class="text-xl font-semibold">Skill Building</h3>
+                <span class="text-xs font-medium px-2.5 py-1 bg-surface-100 text-surface-600 rounded-full">~90 min</span>
+              </div>
+              <p class="text-surface-600 mb-4">Scenario-based practice using the actual risk intake app.</p>
+              <div class="flex items-center gap-2 text-sm">
+                <div class="flex-1 bg-red-50 border border-red-200 rounded-lg p-3 text-center">
+                  <p class="font-medium text-red-700">Step 1-2</p>
+                  <p class="text-red-600 text-xs mt-1">As-Is Capture:<br>"What would you do today?"</p>
+                </div>
+                <svg class="flex-shrink-0 w-5 h-5 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                <div class="flex-1 bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
+                  <p class="font-medium text-amber-700">Step 3</p>
+                  <p class="text-amber-600 text-xs mt-1">The Bridge:<br>"Here's what good looks like"</p>
+                </div>
+                <svg class="flex-shrink-0 w-5 h-5 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                <div class="flex-1 bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-center">
+                  <p class="font-medium text-emerald-700">Step 4-5</p>
+                  <p class="text-emerald-600 text-xs mt-1">Guided Practice:<br>Redo with the real tool</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Layer 3 -->
+        <div class="step-card bg-white rounded-xl border border-surface-200 p-8">
+          <div class="flex items-start gap-6">
+            <div class="flex-shrink-0 w-14 h-14 bg-emerald-100 rounded-xl flex items-center justify-center">
+              <span class="text-2xl font-bold text-emerald-700">3</span>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center gap-3 mb-2">
+                <h3 class="text-xl font-semibold">Champion Pipeline</h3>
+                <span class="text-xs font-medium px-2.5 py-1 bg-surface-100 text-surface-600 rounded-full">~30 min</span>
+              </div>
+              <p class="text-surface-600">Peer teaching exercises surface who can train others. Self-nomination into Champion network. Follow-up commitment: submit a real risk within 2 weeks.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 4: Spot the Difference ============ -->
+<section class="slide" data-title="Exercise Demo">
+  <div class="min-h-screen flex items-center justify-center px-6">
+    <div class="max-w-5xl w-full fade-in">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-amber-100 text-amber-800 rounded-full text-sm font-medium mb-4">
+        Layer 1 Exercise Demo
+      </div>
+      <h2 class="text-3xl font-bold mb-2">"Spot the Difference"</h2>
+      <p class="text-surface-600 mb-8">Participants compare two risk descriptions. Which one can you act on?</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Bad -->
+        <div class="bg-white rounded-xl border-2 border-red-200 p-6">
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
+              <span class="text-red-600 text-xs font-bold">A</span>
+            </div>
+            <span class="text-sm font-medium text-red-600">Traditional</span>
+          </div>
+          <div class="bg-red-50 rounded-lg p-4 mb-4">
+            <p class="text-surface-700 italic">"There is a risk that our systems could be hacked."</p>
+          </div>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center gap-2">
+              <span class="text-surface-400">Likelihood:</span>
+              <span class="text-surface-600">Medium</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-surface-400">Impact:</span>
+              <span class="text-surface-600">High</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-surface-400">Controls:</span>
+              <span class="text-surface-600 italic">Firewall</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Good -->
+        <div class="bg-white rounded-xl border-2 border-emerald-200 p-6">
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center">
+              <span class="text-emerald-600 text-xs font-bold">B</span>
+            </div>
+            <span class="text-sm font-medium text-emerald-600">Proactive</span>
+          </div>
+          <div class="bg-emerald-50 rounded-lg p-4 mb-4">
+            <p class="text-surface-700">"Contractor VPN credentials are not revoked upon contract termination. <span class="comparison-highlight">14 contractor accounts</span> from the last 12 months remain active with access to the <span class="comparison-highlight">staging environment, which mirrors production data</span>. No automated offboarding process exists."</p>
+          </div>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-start gap-2">
+              <span class="text-surface-400 flex-shrink-0">Likelihood:</span>
+              <span class="text-surface-700">Likely — credential reuse incidents occur ~quarterly; <span class="comparison-highlight">3 confirmed active stale accounts</span> with privileged access</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="text-surface-400 flex-shrink-0">Impact:</span>
+              <span class="text-surface-700">Very High — staging contains <span class="comparison-highlight">production customer data; GDPR notification</span> required</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="text-surface-400 flex-shrink-0">Trigger:</span>
+              <span class="text-surface-700">Next vendor transition (Q3) adds more stale credentials</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-surface-900 rounded-xl p-6 text-white">
+        <p class="font-medium mb-2">Discussion prompt</p>
+        <p class="text-surface-300">Which description helps a decision-maker act? Which one could be automated for monitoring? Which would you trust in a board report? — <span class="text-white">Everyone writes their answer first, then we discuss.</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 5: Risk Intake Prototype ============ -->
+<section class="slide" data-title="Intake Prototype">
+  <div class="min-h-screen flex items-center justify-center px-6 py-20">
+    <div class="max-w-3xl w-full fade-in">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-100 text-brand-800 rounded-full text-sm font-medium mb-4">
+        Risk Intake App — Prototype Mock
+      </div>
+      <h2 class="text-3xl font-bold mb-2">User-Centric Risk Intake</h2>
+      <p class="text-surface-600 mb-8">Progressive disclosure. Inline guidance. No GRC knowledge required. This is both the training tool and the production tool.</p>
+
+      <!-- Mock App -->
+      <div class="bg-white rounded-2xl border border-surface-200 shadow-lg overflow-hidden">
+        <!-- App Header -->
+        <div class="bg-surface-900 text-white px-6 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-7 h-7 bg-brand-600 rounded-md flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+            <span class="font-medium text-sm">Submit a Risk</span>
+          </div>
+          <div class="flex items-center gap-2 text-sm text-surface-400">
+            <div class="w-6 h-6 bg-surface-700 rounded-full flex items-center justify-center text-xs">JD</div>
+            <span>Jane Doe — IT Operations</span>
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="px-6 pt-4">
+          <div class="flex items-center gap-3 text-xs font-medium">
+            <span class="text-brand-600">Describe</span>
+            <div class="flex-1 progress-line rounded"><div class="progress-line-fill rounded" style="width: 100%"></div></div>
+            <span class="text-surface-400">Impact</span>
+            <div class="flex-1 progress-line rounded"><div class="progress-line-fill rounded" style="width: 0%"></div></div>
+            <span class="text-surface-400">Assess</span>
+            <div class="flex-1 progress-line rounded"><div class="progress-line-fill rounded" style="width: 0%"></div></div>
+            <span class="text-surface-400">Respond</span>
+            <div class="flex-1 progress-line rounded"><div class="progress-line-fill rounded" style="width: 0%"></div></div>
+            <span class="text-surface-400">Review</span>
+          </div>
+        </div>
+
+        <!-- Form Stage 1 -->
+        <div class="p-6 space-y-5">
+          <div>
+            <h3 class="text-lg font-semibold mb-1">What is the risk?</h3>
+            <p class="text-sm text-surface-500">Describe what you've observed. No GRC expertise needed — just tell us what's happening.</p>
+          </div>
+
+          <!-- Risk Title -->
+          <div>
+            <label class="block text-sm font-medium text-surface-700 mb-1.5">Risk title</label>
+            <div class="intake-field border border-surface-300 rounded-lg px-4 py-2.5 bg-white">
+              <span class="text-surface-800">Contractor VPN accounts not deprovisioned after offboarding</span>
+            </div>
+            <p class="text-xs text-surface-400 mt-1.5">Give the risk a short, clear name. Example: "Regulatory deadline risk for Q3 reporting"</p>
+          </div>
+
+          <!-- Risk Description -->
+          <div>
+            <label class="block text-sm font-medium text-surface-700 mb-1.5">Risk description</label>
+            <div class="intake-field border border-surface-300 rounded-lg px-4 py-3 bg-white min-h-[80px]">
+              <span class="text-surface-800">Three contractor accounts from our previous infrastructure vendor still have active VPN credentials, 3 months after the contract ended. The staging environment they can access mirrors production data including customer records.</span>
+            </div>
+            <p class="text-xs text-surface-400 mt-1.5">Describe what could go wrong, and why it matters. 2-4 sentences is enough.</p>
+          </div>
+
+          <!-- AI Suggestion (Training Mode) -->
+          <div class="bg-brand-50 border border-brand-200 rounded-lg p-4">
+            <div class="flex items-start gap-3">
+              <div class="flex-shrink-0 w-6 h-6 bg-brand-200 rounded-full flex items-center justify-center mt-0.5">
+                <svg class="w-3.5 h-3.5 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              </div>
+              <div class="text-sm">
+                <p class="font-medium text-brand-800 mb-1">Suggestion</p>
+                <p class="text-brand-700">Your description is clear and specific. Consider mentioning how many total contractor accounts may be affected (not just the 3 you've confirmed) and whether there's an offboarding process that should have caught this.</p>
+                <div class="flex gap-2 mt-3">
+                  <button class="px-3 py-1 text-xs bg-brand-600 text-white rounded-md hover:bg-brand-700 transition">Apply suggestion</button>
+                  <button class="px-3 py-1 text-xs text-brand-600 hover:bg-brand-100 rounded-md transition">Dismiss</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Training Mode Badge -->
+          <div class="flex items-center justify-between pt-2">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-medium rounded-full">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                Training Mode — Scenario SC-001
+              </span>
+            </div>
+            <button class="px-5 py-2 bg-brand-700 text-white text-sm font-medium rounded-lg hover:bg-brand-800 transition">Next: Impact &rarr;</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 6: Reference Hub ============ -->
+<section class="slide" data-title="Reference Hub">
+  <div class="min-h-screen flex items-center justify-center px-6 py-20">
+    <div class="max-w-5xl w-full fade-in">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-100 text-emerald-800 rounded-full text-sm font-medium mb-4">
+        Reference Hub — Prototype Mock
+      </div>
+      <h2 class="text-3xl font-bold mb-2">Interactive Reference Hub</h2>
+      <p class="text-surface-600 mb-8">Not a wiki. Not SharePoint. A searchable, role-filtered, always-current knowledge base. Content as MDX in git — AI-authored, human-approved.</p>
+
+      <!-- Mock Hub -->
+      <div class="bg-white rounded-2xl border border-surface-200 shadow-lg overflow-hidden">
+        <!-- Hub Header -->
+        <div class="border-b border-surface-200 px-6 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-7 h-7 bg-emerald-600 rounded-md flex items-center justify-center">
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            </div>
+            <span class="font-semibold text-surface-800">Risk Management Hub</span>
+          </div>
+          <div class="relative w-80">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" placeholder="Search guides, taxonomy, glossary..." class="w-full pl-9 pr-4 py-2 bg-surface-50 border border-surface-200 rounded-lg text-sm focus:outline-none focus:border-brand-400">
+          </div>
+        </div>
+
+        <div class="flex">
+          <!-- Sidebar -->
+          <div class="w-56 border-r border-surface-200 p-4 text-sm flex-shrink-0">
+            <div class="space-y-1">
+              <p class="font-semibold text-surface-500 text-xs uppercase tracking-wider mb-2 px-2">Start Here</p>
+              <a class="block px-2 py-1.5 rounded-md bg-brand-50 text-brand-700 font-medium">What is proactive risk?</a>
+              <a class="block px-2 py-1.5 rounded-md text-surface-600 hover:bg-surface-50">Your role</a>
+              <a class="block px-2 py-1.5 rounded-md text-surface-600 hover:bg-surface-50">5 questions every risk needs</a>
+            </div>
+            <div class="space-y-1 mt-5">
+              <p class="font-semibold text-surface-500 text-xs uppercase tracking-wider mb-2 px-2">Guides</p>
+              <a class="block px-2 py-1.5 rounded-md text-surface-600 hover:bg-surface-50">Identify a risk</a>
+              <a class="block px-2 py-1.5 rounded-md text-surface-600 hover:bg-surface-50">Write a description</a>
+              <a class="block px-2 py-1.5 rounded-md text-surface-600 hover:bg-surface-50">Assess likelihood</a>
+              <a class="block px-2 py-1.5 rounded-md text-surface-600 hover:bg-surface-50">Assess impact</a>
+              <a class="block px-2 py-1.5 rounded-md text-surface-600 hover:bg-surface-50">Choose response</a>
+            </div>
+            <div class="space-y-1 mt-5">
+              <p class="font-semibold text-surface-500 text-xs uppercase tracking-wider mb-2 px-2">Reference</p>
+              <a class="block px-2 py-1.5 rounded-md text-surface-600 hover:bg-surface-50">Taxonomy explorer</a>
+              <a class="block px-2 py-1.5 rounded-md text-surface-600 hover:bg-surface-50">Glossary</a>
+              <a class="block px-2 py-1.5 rounded-md text-surface-600 hover:bg-surface-50">Quick ref cards</a>
+            </div>
+            <div class="space-y-1 mt-5">
+              <p class="font-semibold text-surface-500 text-xs uppercase tracking-wider mb-2 px-2">For Trainers</p>
+              <a class="block px-2 py-1.5 rounded-md text-surface-600 hover:bg-surface-50">Session playbook</a>
+              <a class="block px-2 py-1.5 rounded-md text-surface-600 hover:bg-surface-50">Scenario library</a>
+            </div>
+          </div>
+
+          <!-- Content Area -->
+          <div class="flex-1 p-8 max-h-[450px] overflow-y-auto">
+            <div class="max-w-2xl">
+              <p class="text-xs font-medium text-surface-400 uppercase tracking-wider mb-2">Start Here</p>
+              <h3 class="text-2xl font-bold mb-4">What is Proactive Risk Management?</h3>
+
+              <p class="text-surface-600 mb-6">Proactive risk management starts with understanding your business objectives, then identifies where uncertainty exists around those objectives. It's the difference between asking <em>"what can go wrong?"</em> (reactive) and <em>"what are we uncertain about, and what does that mean for our goals?"</em> (proactive).</p>
+
+              <div class="bg-surface-50 rounded-xl p-5 mb-6">
+                <p class="font-semibold text-surface-800 mb-3">The key shift in thinking</p>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                  <div class="bg-white rounded-lg p-3 border border-red-200">
+                    <p class="font-medium text-red-600 mb-1">Instead of</p>
+                    <p class="text-surface-600">"What bad things might happen?"</p>
+                  </div>
+                  <div class="bg-white rounded-lg p-3 border border-emerald-200">
+                    <p class="font-medium text-emerald-600 mb-1">Think</p>
+                    <p class="text-surface-600">"What are we trying to achieve, and what makes that uncertain?"</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Interactive Component Mock -->
+              <div class="border border-surface-200 rounded-xl overflow-hidden mb-6">
+                <div class="bg-surface-50 px-5 py-3 border-b border-surface-200 flex items-center gap-2">
+                  <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+                  <span class="text-sm font-medium text-surface-700">Interactive: The Proactive Risk Lifecycle</span>
+                </div>
+                <div class="p-5">
+                  <div class="flex gap-2 text-xs mb-4">
+                    <button class="px-3 py-1.5 bg-brand-600 text-white rounded-md font-medium" onclick="showLifecycleStage('context')">Context</button>
+                    <button class="px-3 py-1.5 bg-surface-100 text-surface-600 rounded-md hover:bg-surface-200" onclick="showLifecycleStage('identify')">Identify</button>
+                    <button class="px-3 py-1.5 bg-surface-100 text-surface-600 rounded-md hover:bg-surface-200" onclick="showLifecycleStage('assess')">Assess</button>
+                    <button class="px-3 py-1.5 bg-surface-100 text-surface-600 rounded-md hover:bg-surface-200" onclick="showLifecycleStage('treat')">Treat</button>
+                    <button class="px-3 py-1.5 bg-surface-100 text-surface-600 rounded-md hover:bg-surface-200" onclick="showLifecycleStage('monitor')">Monitor</button>
+                    <button class="px-3 py-1.5 bg-surface-100 text-surface-600 rounded-md hover:bg-surface-200" onclick="showLifecycleStage('close')">Close</button>
+                  </div>
+                  <div id="lifecycleContent">
+                    <p class="font-medium text-surface-800 mb-1">Business Context</p>
+                    <p class="text-sm text-surface-600 mb-3">Understand goals and objectives. Define areas of uncertainty. This is the foundation — a risk without business context is just a worry.</p>
+                    <div class="flex gap-4 text-xs">
+                      <div class="flex-1 bg-emerald-50 rounded p-2">
+                        <p class="font-medium text-emerald-700 mb-0.5">Good example</p>
+                        <p class="text-emerald-600">"Our objective is to complete the vendor migration by Q3. The uncertainty is around data continuity during cutover."</p>
+                      </div>
+                      <div class="flex-1 bg-red-50 rounded p-2">
+                        <p class="font-medium text-red-700 mb-0.5">Weak example</p>
+                        <p class="text-red-600">"Something might go wrong with the migration."</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <p class="text-sm text-surface-500"><strong class="text-surface-700">Full interactive hub with 5+ pages available in prototype-reference-hub.html</strong></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let current = 0;
+
+  // Build nav dots
+  const dotsContainer = document.getElementById('navDots');
+  slides.forEach((s, i) => {
+    const dot = document.createElement('button');
+    dot.className = `nav-dot w-2 h-2 rounded-full ${i === 0 ? 'active' : 'bg-surface-300'}`;
+    dot.title = s.dataset.title;
+    dot.onclick = () => goToSlide(i);
+    dotsContainer.appendChild(dot);
+  });
+
+  function goToSlide(n) {
+    slides[current].classList.remove('active');
+    current = n;
+    slides[current].classList.add('active');
+    const inner = slides[current].querySelector(':scope > div > div');
+    if (inner) { inner.classList.remove('fade-in'); void inner.offsetWidth; inner.classList.add('fade-in'); }
+    updateNav();
+  }
+
+  function nextSlide() { if (current < slides.length - 1) goToSlide(current + 1); }
+  function prevSlide() { if (current > 0) goToSlide(current - 1); }
+
+  function updateNav() {
+    document.getElementById('slideCounter').textContent = `${current + 1} / ${slides.length}`;
+    dotsContainer.querySelectorAll('.nav-dot').forEach((d, i) => {
+      d.className = `nav-dot w-2 h-2 rounded-full ${i === current ? 'active' : 'bg-surface-300'}`;
+    });
+  }
+
+  // Keyboard nav
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+  });
+
+  // Lifecycle interactive component
+  const lifecycleData = {
+    context: { title: 'Business Context', desc: 'Understand goals and objectives. Define areas of uncertainty. This is the foundation — a risk without business context is just a worry.', good: '"Our objective is to complete the vendor migration by Q3. The uncertainty is around data continuity during cutover."', bad: '"Something might go wrong with the migration."' },
+    identify: { title: 'Risk Identification', desc: 'Contextualised impact on goals and objectives. What specifically creates uncertainty, and what is the potential consequence?', good: '"Contractor VPN credentials persist after offboarding — 14 accounts active, staging mirrors prod data."', bad: '"Our systems could be hacked."' },
+    assess: { title: 'Assessment', desc: 'Score based on data for calibration. Understand what triggers would change the risk level. Use quantitative or surrogate data, not just gut feel.', good: '"Likely — credential incidents occur quarterly in our industry. 3 confirmed stale accounts with privileged access."', bad: '"Medium likelihood. High impact."' },
+    treat: { title: 'Treatment', desc: 'Define what needs to happen to proactively deliver certainty. Prefer: Avoid > Mitigate > Transfer > Accept. Set a timing plan for delivery.', good: '"Avoid: Immediate credential revocation. Mitigate: Implement automated offboarding. Timeline: 2 weeks."', bad: '"Implement better security."' },
+    monitor: { title: 'Active Monitoring', desc: 'Monitor risk triggers and delivery against the timing plan. If off-track, reassess score due to increased exposure duration. Don\'t wait for a calendar reminder.', good: '"Trigger: any new vendor transition. Check: weekly credential audit until offboarding process is live."', bad: '"Review in 6 months."' },
+    close: { title: 'Archive / Close', desc: 'Once at target level, monitor passively for a pre-agreed period. Archive for future review if triggers reappear. Evidence-based close, not calendar-based.', good: '"Offboarding process live for 3 months. Zero stale credentials found in last 2 audits. Closing with passive quarterly check."', bad: '"Closed — fixed."' }
+  };
+
+  function showLifecycleStage(stage) {
+    const d = lifecycleData[stage];
+    document.getElementById('lifecycleContent').innerHTML = `
+      <p class="font-medium text-surface-800 mb-1">${d.title}</p>
+      <p class="text-sm text-surface-600 mb-3">${d.desc}</p>
+      <div class="flex gap-4 text-xs">
+        <div class="flex-1 bg-emerald-50 rounded p-2">
+          <p class="font-medium text-emerald-700 mb-0.5">Good example</p>
+          <p class="text-emerald-600">${d.good}</p>
+        </div>
+        <div class="flex-1 bg-red-50 rounded p-2">
+          <p class="font-medium text-red-700 mb-0.5">Weak example</p>
+          <p class="text-red-600">${d.bad}</p>
+        </div>
+      </div>
+    `;
+    const parent = document.getElementById('lifecycleContent').parentElement;
+    parent.querySelectorAll('button').forEach(b => {
+      b.className = 'px-3 py-1.5 bg-surface-100 text-surface-600 rounded-md hover:bg-surface-200';
+    });
+    event.target.className = 'px-3 py-1.5 bg-brand-600 text-white rounded-md font-medium';
+  }
+</script>
+
+</body>
+</html>

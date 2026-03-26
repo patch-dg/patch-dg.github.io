@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="googlebot" content="noindex, nofollow" />
+<title>Risk Management Hub — Prototype</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        brand: { 50: '#f0f4ff', 100: '#dbe4ff', 200: '#bac8ff', 300: '#91a7ff', 400: '#748ffc', 500: '#5c7cfa', 600: '#4c6ef5', 700: '#4263eb', 800: '#3b5bdb', 900: '#364fc7' },
+        hub: { 50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac', 400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d' },
+        surface: { 50: '#f8f9fa', 100: '#f1f3f5', 200: '#e9ecef', 300: '#dee2e6', 400: '#ced4da', 500: '#adb5bd', 600: '#868e96', 700: '#495057', 800: '#343a40', 900: '#212529' }
+      }
+    }
+  }
+}
+</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .fade-in { animation: fadeIn 0.3s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .nav-link { transition: all 0.15s; }
+  .nav-link:hover { background: #f1f3f5; }
+  .nav-link.active { background: #f0f4ff; color: #3b5bdb; font-weight: 500; }
+  .content-card { transition: all 0.2s; }
+  .content-card:hover { border-color: #4263eb; background: #f8f9ff; }
+  .tab-btn { transition: all 0.15s; }
+  .tab-btn.active { background: #4263eb; color: white; }
+  .glossary-item { transition: all 0.15s; cursor: pointer; }
+  .glossary-item:hover { background: #f8f9fa; }
+  .glossary-item.open { background: #f0f4ff; }
+  .expand-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+  .expand-content.open { max-height: 500px; }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-thumb { background: #ced4da; border-radius: 3px; }
+</style>
+</head>
+<body class="bg-surface-100 text-surface-900">
+
+<div class="flex min-h-screen">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="w-64 bg-white border-r border-surface-200 flex flex-col fixed top-0 left-0 bottom-0 z-40">
+    <!-- Logo -->
+    <div class="px-5 py-4 border-b border-surface-200 flex items-center gap-3">
+      <div class="w-8 h-8 bg-hub-600 rounded-lg flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+      </div>
+      <div>
+        <p class="font-semibold text-sm text-surface-800">Risk Management</p>
+        <p class="text-xs text-surface-400">Reference Hub</p>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="px-4 py-3">
+      <div class="relative">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" placeholder="Search..." class="w-full pl-9 pr-3 py-2 bg-surface-50 border border-surface-200 rounded-lg text-sm focus:outline-none focus:border-brand-400 focus:bg-white">
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="flex-1 overflow-y-auto px-3 pb-4 text-sm">
+      <p class="font-semibold text-surface-400 text-[11px] uppercase tracking-wider mb-1 mt-3 px-2">Start Here</p>
+      <a class="nav-link active block px-3 py-1.5 rounded-md" onclick="showPage('proactive')">What is proactive risk?</a>
+      <a class="nav-link block px-3 py-1.5 rounded-md text-surface-600" onclick="showPage('role')">Your role in risk management</a>
+      <a class="nav-link block px-3 py-1.5 rounded-md text-surface-600" onclick="showPage('five')">5 questions every risk needs</a>
+
+      <p class="font-semibold text-surface-400 text-[11px] uppercase tracking-wider mb-1 mt-5 px-2">Guides</p>
+      <a class="nav-link block px-3 py-1.5 rounded-md text-surface-600" onclick="showPage('likelihood')">How to assess likelihood</a>
+      <a class="nav-link block px-3 py-1.5 rounded-md text-surface-600" onclick="showPage('description')">How to write a description</a>
+      <a class="nav-link block px-3 py-1.5 rounded-md text-surface-600">How to assess impact</a>
+      <a class="nav-link block px-3 py-1.5 rounded-md text-surface-600">How to choose a response</a>
+      <a class="nav-link block px-3 py-1.5 rounded-md text-surface-600">How to define triggers</a>
+
+      <p class="font-semibold text-surface-400 text-[11px] uppercase tracking-wider mb-1 mt-5 px-2">Reference</p>
+      <a class="nav-link block px-3 py-1.5 rounded-md text-surface-600" onclick="showPage('glossary')">Glossary</a>
+      <a class="nav-link block px-3 py-1.5 rounded-md text-surface-600" onclick="showPage('taxonomy')">Taxonomy explorer</a>
+      <a class="nav-link block px-3 py-1.5 rounded-md text-surface-600" onclick="showPage('lifecycle')">Proactive lifecycle</a>
+      <a class="nav-link block px-3 py-1.5 rounded-md text-surface-600">Quick reference cards</a>
+
+      <p class="font-semibold text-surface-400 text-[11px] uppercase tracking-wider mb-1 mt-5 px-2">For Trainers</p>
+      <a class="nav-link block px-3 py-1.5 rounded-md text-surface-600">Session playbook</a>
+      <a class="nav-link block px-3 py-1.5 rounded-md text-surface-600">Scenario library</a>
+      <a class="nav-link block px-3 py-1.5 rounded-md text-surface-600">Feedback rubric</a>
+
+      <p class="font-semibold text-surface-400 text-[11px] uppercase tracking-wider mb-1 mt-5 px-2">For Champions</p>
+      <a class="nav-link block px-3 py-1.5 rounded-md text-surface-600">Champion role guide</a>
+      <a class="nav-link block px-3 py-1.5 rounded-md text-surface-600">How to co-facilitate</a>
+    </nav>
+
+    <!-- Footer -->
+    <div class="px-4 py-3 border-t border-surface-200 text-xs text-surface-400">
+      Content as code. AI-drafted, human-approved.
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="flex-1 ml-64">
+
+    <!-- Top bar -->
+    <div class="sticky top-0 z-30 bg-white/90 backdrop-blur-sm border-b border-surface-200 px-8 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2 text-sm text-surface-400">
+        <span>Start Here</span>
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <span class="text-surface-700" id="breadcrumb">What is proactive risk management?</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="text-xs text-surface-500 hover:text-surface-700 flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          Export PDF
+        </button>
+      </div>
+    </div>
+
+    <div class="max-w-3xl mx-auto px-8 py-10">
+
+      <!-- ====== PAGE: PROACTIVE RISK ====== -->
+      <div class="page-content fade-in" id="page-proactive">
+        <h1 class="text-3xl font-bold mb-2">What is Proactive Risk Management?</h1>
+        <p class="text-surface-400 text-sm mb-8">Start Here &middot; 5 min read</p>
+
+        <p class="text-surface-600 text-lg mb-6 leading-relaxed">Proactive risk management starts with understanding your <strong class="text-surface-800">business objectives</strong>, then identifies where <strong class="text-surface-800">uncertainty</strong> exists around those objectives. It replaces "what can go wrong?" with "what are we uncertain about, and what does that mean for our goals?"</p>
+
+        <div class="bg-surface-50 rounded-xl p-6 mb-8">
+          <p class="font-semibold text-surface-800 mb-4">The key shift</p>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="bg-white rounded-lg p-4 border border-red-200">
+              <p class="font-medium text-red-600 mb-2 text-sm">Traditional</p>
+              <p class="text-surface-600 text-sm">"What bad things might happen?"</p>
+              <p class="text-surface-400 text-xs mt-2">Problem-focused. No business context. Reactive.</p>
+            </div>
+            <div class="bg-white rounded-lg p-4 border border-emerald-200">
+              <p class="font-medium text-emerald-600 mb-2 text-sm">Proactive</p>
+              <p class="text-surface-600 text-sm">"What are we trying to achieve, and what creates uncertainty?"</p>
+              <p class="text-surface-400 text-xs mt-2">Goal-focused. Contextualised. Forward-looking.</p>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="text-xl font-semibold mb-4">Why this matters</h2>
+        <p class="text-surface-600 mb-4">When risk is reactive, the organisation spends time documenting problems after they emerge. When risk is proactive, the organisation spends time <strong class="text-surface-800">preventing problems</strong> and <strong class="text-surface-800">delivering certainty</strong> to its objectives.</p>
+
+        <div class="bg-brand-50 border border-brand-200 rounded-xl p-5 mb-8">
+          <p class="text-brand-800 font-medium mb-1">The mindset to adopt</p>
+          <p class="text-brand-700">"Fix things, not identify things." The goal of risk management is treatment delivery, not register population. A risk register full of unactioned items is not a sign of good risk management — it's a sign of a broken process.</p>
+        </div>
+
+        <!-- Interactive: Lifecycle -->
+        <h2 class="text-xl font-semibold mb-4">The Proactive Risk Lifecycle</h2>
+        <p class="text-surface-600 mb-4">Click each stage to see what it means in practice, with good and weak examples.</p>
+
+        <div class="border border-surface-200 rounded-xl overflow-hidden mb-8">
+          <div class="flex gap-1 p-3 bg-surface-50 border-b border-surface-200 overflow-x-auto">
+            <button class="tab-btn active px-3 py-1.5 rounded-md text-xs font-medium" onclick="showStage('ctx', this)">Context</button>
+            <button class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium text-surface-600 bg-white border border-surface-200" onclick="showStage('ident', this)">Identify</button>
+            <button class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium text-surface-600 bg-white border border-surface-200" onclick="showStage('data', this)">Data</button>
+            <button class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium text-surface-600 bg-white border border-surface-200" onclick="showStage('assess', this)">Assess</button>
+            <button class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium text-surface-600 bg-white border border-surface-200" onclick="showStage('treat', this)">Treat</button>
+            <button class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium text-surface-600 bg-white border border-surface-200" onclick="showStage('monitor', this)">Monitor</button>
+            <button class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium text-surface-600 bg-white border border-surface-200" onclick="showStage('passive', this)">Passive</button>
+            <button class="tab-btn px-3 py-1.5 rounded-md text-xs font-medium text-surface-600 bg-white border border-surface-200" onclick="showStage('close', this)">Close</button>
+          </div>
+          <div class="p-5" id="stageContent">
+            <p class="font-semibold text-surface-800 mb-1">Business Context</p>
+            <p class="text-sm text-surface-600 mb-4">Understand goals and objectives. Define areas of uncertainty. This is the foundation — without business context, a risk is just a worry with no anchor.</p>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                <p class="font-medium text-emerald-700 mb-1 text-xs">Good</p>
+                <p class="text-emerald-700 text-xs">"Our objective is to complete the vendor migration by Q3. The uncertainty is around data continuity during cutover."</p>
+              </div>
+              <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p class="font-medium text-red-700 mb-1 text-xs">Weak</p>
+                <p class="text-red-700 text-xs">"Something might go wrong with the migration."</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4 pt-4 border-t border-surface-200">
+          <a class="text-sm text-brand-600 font-medium hover:text-brand-800 cursor-pointer" onclick="showPage('role')">Next: Your role in risk management &rarr;</a>
+        </div>
+      </div>
+
+      <!-- ====== PAGE: LIKELIHOOD GUIDE ====== -->
+      <div class="page-content fade-in" id="page-likelihood" style="display:none">
+        <p class="text-xs font-medium text-surface-400 uppercase tracking-wider mb-2">Guides</p>
+        <h1 class="text-3xl font-bold mb-2">How to Assess Likelihood</h1>
+        <p class="text-surface-400 text-sm mb-8">Guides &middot; 4 min read</p>
+
+        <p class="text-surface-600 mb-6">Likelihood answers: <strong class="text-surface-800">"How often could this happen?"</strong> Use evidence and frequency data, not gut feel. The scale below uses plain-language descriptions tied to time-based frequency bands.</p>
+
+        <div class="bg-surface-50 border border-surface-200 rounded-xl p-5 mb-6">
+          <p class="font-semibold text-surface-700 mb-1 text-sm">Key principle</p>
+          <p class="text-sm text-surface-600">A proactive assessment includes <em>why</em> you chose that level — evidence, precedent, or data. "Medium" with no reasoning is not useful. "Possible — we've seen this once in the last 2 years in a similar team" is actionable.</p>
+        </div>
+
+        <!-- Interactive Scale -->
+        <h2 class="text-xl font-semibold mb-4">The Likelihood Scale</h2>
+        <p class="text-surface-600 text-sm mb-4">Click each level to see detailed guidance, examples, and common mistakes.</p>
+
+        <div class="space-y-2 mb-8" id="likelihoodGuide">
+          <div class="glossary-item border border-surface-200 rounded-lg overflow-hidden" onclick="toggleExpand(this)">
+            <div class="flex items-center gap-4 p-4">
+              <div class="flex-shrink-0 w-11 h-11 bg-red-100 rounded-lg flex items-center justify-center text-sm font-bold text-red-700">5</div>
+              <div class="flex-1">
+                <p class="font-medium text-surface-800">Almost Certain</p>
+                <p class="text-xs text-surface-500">More than once a quarter</p>
+              </div>
+              <svg class="w-4 h-4 text-surface-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div class="expand-content">
+              <div class="px-4 pb-4 pt-0 border-t border-surface-100">
+                <div class="grid grid-cols-2 gap-3 mt-3 text-xs">
+                  <div class="bg-emerald-50 rounded-lg p-3">
+                    <p class="font-medium text-emerald-700 mb-1">When to select this</p>
+                    <p class="text-emerald-600">The event is happening right now, has happened multiple times recently, or has clear indicators it will recur within weeks. Example: phishing attempts targeting your team are occurring weekly.</p>
+                  </div>
+                  <div class="bg-amber-50 rounded-lg p-3">
+                    <p class="font-medium text-amber-700 mb-1">Common mistake</p>
+                    <p class="text-amber-600">Selecting "Almost Certain" for theoretical worst-case scenarios that haven't actually occurred. This level requires evidence of frequency, not severity.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glossary-item border border-surface-200 rounded-lg overflow-hidden" onclick="toggleExpand(this)">
+            <div class="flex items-center gap-4 p-4">
+              <div class="flex-shrink-0 w-11 h-11 bg-orange-100 rounded-lg flex items-center justify-center text-sm font-bold text-orange-700">4</div>
+              <div class="flex-1">
+                <p class="font-medium text-surface-800">Likely</p>
+                <p class="text-xs text-surface-500">Once a year to once a quarter</p>
+              </div>
+              <svg class="w-4 h-4 text-surface-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div class="expand-content">
+              <div class="px-4 pb-4 pt-0 border-t border-surface-100">
+                <div class="grid grid-cols-2 gap-3 mt-3 text-xs">
+                  <div class="bg-emerald-50 rounded-lg p-3">
+                    <p class="font-medium text-emerald-700 mb-1">When to select this</p>
+                    <p class="text-emerald-600">The event has happened before in your area or similar environments, and conditions haven't changed enough to prevent recurrence. Example: contractor credential issues occur quarterly across the industry.</p>
+                  </div>
+                  <div class="bg-amber-50 rounded-lg p-3">
+                    <p class="font-medium text-amber-700 mb-1">Common mistake</p>
+                    <p class="text-amber-600">Defaulting to "Likely" as a safe middle-ground when you haven't checked for evidence. If you don't know, say so — "Not sure" is more honest than a guess.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glossary-item border border-surface-200 rounded-lg overflow-hidden" onclick="toggleExpand(this)">
+            <div class="flex items-center gap-4 p-4">
+              <div class="flex-shrink-0 w-11 h-11 bg-amber-100 rounded-lg flex items-center justify-center text-sm font-bold text-amber-700">3</div>
+              <div class="flex-1">
+                <p class="font-medium text-surface-800">Possible</p>
+                <p class="text-xs text-surface-500">About once a year</p>
+              </div>
+              <svg class="w-4 h-4 text-surface-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div class="expand-content">
+              <div class="px-4 pb-4 pt-0 border-t border-surface-100">
+                <div class="grid grid-cols-2 gap-3 mt-3 text-xs">
+                  <div class="bg-emerald-50 rounded-lg p-3">
+                    <p class="font-medium text-emerald-700 mb-1">When to select this</p>
+                    <p class="text-emerald-600">Could happen under certain conditions, but hasn't been frequent. There is some precedent. Example: a misconfiguration that appears during annual infrastructure refreshes.</p>
+                  </div>
+                  <div class="bg-amber-50 rounded-lg p-3">
+                    <p class="font-medium text-amber-700 mb-1">Common mistake</p>
+                    <p class="text-amber-600">Using "Possible" as a catch-all for everything uncertain. If you have evidence of higher or lower frequency, use it. This level should be supported by "it happened about once a year" or similar data.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glossary-item border border-surface-200 rounded-lg overflow-hidden" onclick="toggleExpand(this)">
+            <div class="flex items-center gap-4 p-4">
+              <div class="flex-shrink-0 w-11 h-11 bg-blue-100 rounded-lg flex items-center justify-center text-sm font-bold text-blue-700">2</div>
+              <div class="flex-1">
+                <p class="font-medium text-surface-800">Unlikely</p>
+                <p class="text-xs text-surface-500">About once every 3 years</p>
+              </div>
+              <svg class="w-4 h-4 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div class="expand-content"><div class="px-4 pb-4 pt-0 border-t border-surface-100"><div class="grid grid-cols-2 gap-3 mt-3 text-xs"><div class="bg-emerald-50 rounded-lg p-3"><p class="font-medium text-emerald-700 mb-1">When to select this</p><p class="text-emerald-600">Would require unusual circumstances. No recent precedent in your area. Example: a specific supply chain failure that last occurred 4 years ago under different market conditions.</p></div><div class="bg-amber-50 rounded-lg p-3"><p class="font-medium text-amber-700 mb-1">Common mistake</p><p class="text-amber-600">Selecting "Unlikely" because it feels comfortable, when the real reason is you haven't looked for evidence. Low confidence is not the same as low likelihood.</p></div></div></div></div>
+          </div>
+
+          <div class="glossary-item border border-surface-200 rounded-lg overflow-hidden" onclick="toggleExpand(this)">
+            <div class="flex items-center gap-4 p-4">
+              <div class="flex-shrink-0 w-11 h-11 bg-emerald-100 rounded-lg flex items-center justify-center text-sm font-bold text-emerald-700">1</div>
+              <div class="flex-1">
+                <p class="font-medium text-surface-800">Rare</p>
+                <p class="text-xs text-surface-500">Once every 10 years or less</p>
+              </div>
+              <svg class="w-4 h-4 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div class="expand-content"><div class="px-4 pb-4 pt-0 border-t border-surface-100"><div class="grid grid-cols-2 gap-3 mt-3 text-xs"><div class="bg-emerald-50 rounded-lg p-3"><p class="font-medium text-emerald-700 mb-1">When to select this</p><p class="text-emerald-600">Exceptional, near-theoretical. No precedent in your organisation. Example: a natural disaster affecting your specific data centre region — possible but historically unprecedented.</p></div><div class="bg-amber-50 rounded-lg p-3"><p class="font-medium text-amber-700 mb-1">Common mistake</p><p class="text-amber-600">Using "Rare" to downplay a risk you'd prefer not to deal with. Rare events can still have very high impact — the matrix accounts for this.</p></div></div></div></div>
+          </div>
+        </div>
+
+        <div class="bg-brand-50 border border-brand-200 rounded-xl p-5 mb-6">
+          <p class="text-brand-800 font-medium mb-1 text-sm">Remember</p>
+          <p class="text-brand-700 text-sm">A proactive likelihood assessment always includes the <em>evidence</em>: "Likely — credential reuse incidents occur quarterly across the industry; we have confirmed 3 active stale accounts." This is what makes it useful for decision-makers and distinguishes it from a guess.</p>
+        </div>
+      </div>
+
+      <!-- ====== PAGE: GLOSSARY ====== -->
+      <div class="page-content fade-in" id="page-glossary" style="display:none">
+        <p class="text-xs font-medium text-surface-400 uppercase tracking-wider mb-2">Reference</p>
+        <h1 class="text-3xl font-bold mb-2">Glossary</h1>
+        <p class="text-surface-400 text-sm mb-4">Reference &middot; Searchable, plain-language definitions</p>
+
+        <div class="relative mb-6">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" placeholder="Filter glossary terms..." class="w-full pl-9 pr-4 py-2.5 bg-white border border-surface-200 rounded-lg text-sm focus:outline-none focus:border-brand-400" oninput="filterGlossary(this.value)">
+        </div>
+
+        <div class="space-y-2" id="glossaryList">
+          <div class="glossary-item border border-surface-200 rounded-lg overflow-hidden bg-white" onclick="toggleExpand(this)" data-term="risk">
+            <div class="flex items-center justify-between p-4">
+              <div>
+                <p class="font-medium text-surface-800">Risk</p>
+                <p class="text-xs text-surface-400">An identified area of uncertainty that may impact objectives</p>
+              </div>
+              <svg class="w-4 h-4 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div class="expand-content">
+              <div class="px-4 pb-4 border-t border-surface-100 pt-3 text-sm text-surface-600">
+                <p class="mb-2">An identified threat, vulnerability, or concern that may impact the organisation, requiring capture, classification, and governance tracking.</p>
+                <p class="font-medium text-surface-700 text-xs mb-1">This is NOT:</p>
+                <ul class="text-xs text-surface-500 list-disc list-inside space-y-0.5">
+                  <li>A resolved incident or closed issue</li>
+                  <li>A control or mitigation action</li>
+                  <li>A task or project deliverable</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="glossary-item border border-surface-200 rounded-lg overflow-hidden bg-white" onclick="toggleExpand(this)" data-term="risk register">
+            <div class="flex items-center justify-between p-4">
+              <div>
+                <p class="font-medium text-surface-800">Risk Register</p>
+                <p class="text-xs text-surface-400">The authoritative, centralised record of all organisational risks</p>
+              </div>
+              <svg class="w-4 h-4 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div class="expand-content">
+              <div class="px-4 pb-4 border-t border-surface-100 pt-3 text-sm text-surface-600">
+                <p class="mb-2">Currently hosted in System XYZ. This is the single source of truth for risk governance and reporting.</p>
+                <p class="font-medium text-surface-700 text-xs mb-1">This is NOT:</p>
+                <ul class="text-xs text-surface-500 list-disc list-inside space-y-0.5">
+                  <li>An ad-hoc spreadsheet or email thread</li>
+                  <li>A reporting dashboard</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="glossary-item border border-surface-200 rounded-lg overflow-hidden bg-white" onclick="toggleExpand(this)" data-term="taxonomy">
+            <div class="flex items-center justify-between p-4">
+              <div>
+                <p class="font-medium text-surface-800">Taxonomy</p>
+                <p class="text-xs text-surface-400">The enforced schema of categories, fields, and ownership rules</p>
+              </div>
+              <svg class="w-4 h-4 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div class="expand-content">
+              <div class="px-4 pb-4 border-t border-surface-100 pt-3 text-sm text-surface-600">
+                <p class="mb-2">The defined schema that every risk submission must conform to at the point of entry. Enforced at intake, not corrected after.</p>
+                <p class="font-medium text-surface-700 text-xs mb-1">This is NOT:</p>
+                <ul class="text-xs text-surface-500 list-disc list-inside space-y-0.5">
+                  <li>Post-entry tagging or manual reclassification</li>
+                  <li>A reporting filter or view configuration</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="glossary-item border border-surface-200 rounded-lg overflow-hidden bg-white" onclick="toggleExpand(this)" data-term="enrichment pipeline">
+            <div class="flex items-center justify-between p-4">
+              <div>
+                <p class="font-medium text-surface-800">Enrichment Pipeline</p>
+                <p class="text-xs text-surface-400">Automated processing that classifies, scores, and routes submissions</p>
+              </div>
+              <svg class="w-4 h-4 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div class="expand-content">
+              <div class="px-4 pb-4 border-t border-surface-100 pt-3 text-sm text-surface-600">
+                <p class="mb-2">The processing layer between intake and the register. Classifies submitted risks, scores completeness, suggests mitigations, and routes low-confidence items for human review.</p>
+                <p class="font-medium text-surface-700 text-xs mb-1">This is NOT:</p>
+                <ul class="text-xs text-surface-500 list-disc list-inside space-y-0.5">
+                  <li>The intake form itself</li>
+                  <li>The risk register</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="glossary-item border border-surface-200 rounded-lg overflow-hidden bg-white" onclick="toggleExpand(this)" data-term="completeness scoring">
+            <div class="flex items-center justify-between p-4">
+              <div>
+                <p class="font-medium text-surface-800">Completeness Scoring</p>
+                <p class="text-xs text-surface-400">Measures whether a submission has enough information to be actionable</p>
+              </div>
+              <svg class="w-4 h-4 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div class="expand-content">
+              <div class="px-4 pb-4 border-t border-surface-100 pt-3 text-sm text-surface-600">
+                <p class="mb-2">A mechanism that evaluates whether a submitted risk contains sufficient structured information to be actionable, and flags under-described submissions before they enter the register.</p>
+                <p class="font-medium text-surface-700 text-xs mb-1">This is NOT:</p>
+                <ul class="text-xs text-surface-500 list-disc list-inside space-y-0.5">
+                  <li>A measure of how many risks have been submitted</li>
+                  <li>A reporting metric on organisational risk coverage</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="glossary-item border border-surface-200 rounded-lg overflow-hidden bg-white" onclick="toggleExpand(this)" data-term="human review queue">
+            <div class="flex items-center justify-between p-4">
+              <div>
+                <p class="font-medium text-surface-800">Human Review Queue</p>
+                <p class="text-xs text-surface-400">Flagged submissions routed to GRC for sign-off</p>
+              </div>
+              <svg class="w-4 h-4 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div class="expand-content">
+              <div class="px-4 pb-4 border-t border-surface-100 pt-3 text-sm text-surface-600">
+                <p>A workflow that sends flagged or low-confidence risk submissions to GRC staff for sign-off before proceeding to the register. Not the primary path — only triggered for uncertain submissions.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="glossary-item border border-surface-200 rounded-lg overflow-hidden bg-white" onclick="toggleExpand(this)" data-term="grc non-grc">
+            <div class="flex items-center justify-between p-4">
+              <div>
+                <p class="font-medium text-surface-800">Non-GRC User</p>
+                <p class="text-xs text-surface-400">An employee outside the GRC function who reports or owns a risk</p>
+              </div>
+              <svg class="w-4 h-4 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div class="expand-content">
+              <div class="px-4 pb-4 border-t border-surface-100 pt-3 text-sm text-surface-600">
+                <p>The primary audience for the risk intake tool. These are people who observe risks in their day-to-day work but don't operate inside the GRC system. The new model makes them "first responders" — GRC becomes the governance layer, not the data entry layer.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== PAGE: ROLE ====== -->
+      <div class="page-content fade-in" id="page-role" style="display:none">
+        <h1 class="text-3xl font-bold mb-2">Your Role in Risk Management</h1>
+        <p class="text-surface-400 text-sm mb-8">Start Here &middot; 3 min read</p>
+
+        <p class="text-surface-600 mb-6">Select your role to see what you need to know, what you're expected to do, and how the new process supports you.</p>
+
+        <div class="grid grid-cols-2 gap-4 mb-8" id="roleCards">
+          <div class="content-card border border-surface-200 rounded-xl p-5 bg-white cursor-pointer" onclick="showRole('identifier')">
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-3">
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </div>
+            <p class="font-semibold text-surface-800 mb-1">Risk Identifier</p>
+            <p class="text-xs text-surface-500">You spot risks in your day-to-day work and report them.</p>
+          </div>
+          <div class="content-card border border-surface-200 rounded-xl p-5 bg-white cursor-pointer" onclick="showRole('owner')">
+            <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mb-3">
+              <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            </div>
+            <p class="font-semibold text-surface-800 mb-1">Risk Owner</p>
+            <p class="text-xs text-surface-500">You're accountable for managing and treating specific risks.</p>
+          </div>
+          <div class="content-card border border-surface-200 rounded-xl p-5 bg-white cursor-pointer" onclick="showRole('manager')">
+            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mb-3">
+              <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+            </div>
+            <p class="font-semibold text-surface-800 mb-1">Risk Manager / GRC</p>
+            <p class="text-xs text-surface-500">You govern the process, review submissions, and maintain quality.</p>
+          </div>
+          <div class="content-card border border-surface-200 rounded-xl p-5 bg-white cursor-pointer" onclick="showRole('exec')">
+            <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center mb-3">
+              <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+            </div>
+            <p class="font-semibold text-surface-800 mb-1">Executive / Decision-Maker</p>
+            <p class="text-xs text-surface-500">You consume risk data to make governance and investment decisions.</p>
+          </div>
+        </div>
+
+        <div id="roleDetail" class="bg-white border border-surface-200 rounded-xl p-6" style="display:none">
+        </div>
+      </div>
+
+      <!-- Placeholder pages -->
+      <div class="page-content fade-in" id="page-five" style="display:none">
+        <h1 class="text-3xl font-bold mb-2">5 Questions Every Risk Should Answer</h1>
+        <p class="text-surface-400 text-sm mb-8">Start Here &middot; 2 min read</p>
+        <div class="space-y-4">
+          <div class="bg-white border border-surface-200 rounded-xl p-5 flex items-start gap-4"><div class="flex-shrink-0 w-10 h-10 bg-brand-100 rounded-full flex items-center justify-center font-bold text-brand-700">1</div><div><p class="font-semibold text-surface-800">What is the business objective at stake?</p><p class="text-sm text-surface-500 mt-1">A risk without context is just a worry. Start with what you're trying to achieve.</p></div></div>
+          <div class="bg-white border border-surface-200 rounded-xl p-5 flex items-start gap-4"><div class="flex-shrink-0 w-10 h-10 bg-brand-100 rounded-full flex items-center justify-center font-bold text-brand-700">2</div><div><p class="font-semibold text-surface-800">What specifically creates uncertainty?</p><p class="text-sm text-surface-500 mt-1">Name the concrete source of the risk — a process gap, a dependency, an external factor.</p></div></div>
+          <div class="bg-white border border-surface-200 rounded-xl p-5 flex items-start gap-4"><div class="flex-shrink-0 w-10 h-10 bg-brand-100 rounded-full flex items-center justify-center font-bold text-brand-700">3</div><div><p class="font-semibold text-surface-800">What evidence supports your assessment?</p><p class="text-sm text-surface-500 mt-1">How often has this happened? What data tells you this is likely or unlikely?</p></div></div>
+          <div class="bg-white border border-surface-200 rounded-xl p-5 flex items-start gap-4"><div class="flex-shrink-0 w-10 h-10 bg-brand-100 rounded-full flex items-center justify-center font-bold text-brand-700">4</div><div><p class="font-semibold text-surface-800">What would change the risk level?</p><p class="text-sm text-surface-500 mt-1">Define the triggers — events or conditions that would make this better or worse.</p></div></div>
+          <div class="bg-white border border-surface-200 rounded-xl p-5 flex items-start gap-4"><div class="flex-shrink-0 w-10 h-10 bg-brand-100 rounded-full flex items-center justify-center font-bold text-brand-700">5</div><div><p class="font-semibold text-surface-800">What needs to happen to deliver certainty?</p><p class="text-sm text-surface-500 mt-1">Not "what control should we add" — what action, with a timeline, will reduce the uncertainty?</p></div></div>
+        </div>
+      </div>
+
+      <div class="page-content fade-in" id="page-description" style="display:none">
+        <p class="text-xs font-medium text-surface-400 uppercase tracking-wider mb-2">Guides</p>
+        <h1 class="text-3xl font-bold mb-2">How to Write a Risk Description</h1>
+        <p class="text-surface-400 text-sm mb-8">Guides &middot; 3 min read</p>
+        <p class="text-surface-600 mb-6">A good risk description is <strong>specific</strong>, <strong>contextualised</strong>, and <strong>actionable</strong>. It tells a decision-maker what's happening, why it matters, and what the scope is — in 2-4 sentences.</p>
+        <h2 class="text-xl font-semibold mb-4">The formula</h2>
+        <div class="bg-surface-50 rounded-xl p-5 mb-6 font-mono text-sm text-surface-700">
+          <span class="text-brand-600">[What]</span> is happening or could happen, because <span class="text-brand-600">[why/cause]</span>. This affects <span class="text-brand-600">[scope/who]</span> and could result in <span class="text-brand-600">[consequence]</span>.
+        </div>
+        <h2 class="text-xl font-semibold mb-4">Examples</h2>
+        <div class="space-y-4 mb-8">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+              <p class="font-medium text-red-600 text-sm mb-2">Weak</p>
+              <p class="text-sm text-surface-700 italic">"There is a risk that our systems could be hacked."</p>
+              <p class="text-xs text-red-500 mt-2">No specifics. No scope. No actionable information. A decision-maker can't do anything with this.</p>
+            </div>
+            <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+              <p class="font-medium text-emerald-600 text-sm mb-2">Strong</p>
+              <p class="text-sm text-surface-700">"Contractor VPN credentials are not revoked upon contract termination. 14 accounts from the last 12 months remain active with access to the staging environment, which mirrors production customer data."</p>
+              <p class="text-xs text-emerald-500 mt-2">Specific cause, quantified scope, clear consequence. Actionable.</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+              <p class="font-medium text-red-600 text-sm mb-2">Weak</p>
+              <p class="text-sm text-surface-700 italic">"Risk of non-compliance."</p>
+              <p class="text-xs text-red-500 mt-2">With what? Affecting whom? What's the deadline? This creates register clutter, not insight.</p>
+            </div>
+            <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+              <p class="font-medium text-emerald-600 text-sm mb-2">Strong</p>
+              <p class="text-sm text-surface-700">"The Q3 DORA reporting deadline requires evidence of ICT third-party risk management. Our current vendor assessment process covers 60% of critical suppliers. The remaining 40% have no documented assessment."</p>
+              <p class="text-xs text-emerald-500 mt-2">Named regulation, quantified gap, clear timeline. A manager can scope the work immediately.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-brand-50 border border-brand-200 rounded-xl p-5">
+          <p class="text-brand-800 font-medium mb-1 text-sm">The test</p>
+          <p class="text-brand-700 text-sm">Read your description and ask: "Can someone who doesn't know the context understand what's at stake and take a next step?" If yes, it's good enough. If no, add the missing specifics.</p>
+        </div>
+      </div>
+
+      <div class="page-content" id="page-taxonomy" style="display:none"><p class="text-surface-400 text-center py-20">Taxonomy Explorer — interactive category browser would render here from <code>packages/taxonomy/</code></p></div>
+      <div class="page-content" id="page-lifecycle" style="display:none"><p class="text-surface-400 text-center py-20">Full interactive proactive lifecycle comparison would render here</p></div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  const stageData = {
+    ctx: { title: 'Business Context', desc: 'Understand goals and objectives. Define areas of uncertainty. This is the foundation — without business context, a risk is just a worry with no anchor.', good: '"Our objective is to complete the vendor migration by Q3. The uncertainty is around data continuity during cutover."', bad: '"Something might go wrong with the migration."' },
+    ident: { title: 'Risk Identification', desc: 'Contextualised impact on goals and objectives. What specifically creates uncertainty, and what is the potential consequence?', good: '"Contractor VPN credentials persist after offboarding — 14 accounts active, staging mirrors production data."', bad: '"Our systems could be hacked."' },
+    data: { title: 'Data Requirements', desc: 'Quantify or qualify using data or surrogate data. How often has this happened? What evidence supports the assessment? What would change the picture?', good: '"3 confirmed stale accounts with privileged access. Industry benchmarks show quarterly credential reuse incidents."', bad: '"We think it could be a problem."' },
+    assess: { title: 'Assessment', desc: 'Score based on data for calibration. Ensure triggers for risk are understood — what would make it better or worse?', good: '"Likely (4/5) — credential incidents occur quarterly. Very High impact — staging contains production customer data, GDPR notification required."', bad: '"Medium likelihood, High impact."' },
+    treat: { title: 'Treatment', desc: 'Define needs and requirements for proactively delivering certainty. Prefer: Avoid > Mitigate > Transfer > Accept. Set a timing plan.', good: '"Avoid: Immediate credential revocation (1 day). Mitigate: Automated offboarding process (2 weeks). Timing plan tracked weekly."', bad: '"Implement better security."' },
+    monitor: { title: 'Active Monitoring', desc: 'Monitor risk triggers and delivery against the timing plan. If off-track, reassess score. If triggers increase, consider increasing score. If reducing, consider decreasing.', good: '"Trigger: any new vendor transition. Weekly credential audit until offboarding is live. If off-track by week 3, escalate and reassess to Very High."', bad: '"Review in 6 months."' },
+    passive: { title: 'Passive Monitoring', desc: 'Once at target level, monitor passively for a pre-agreed period to ensure no masked factor was missed. This catches risks that appear resolved but resurface.', good: '"Offboarding process live. Passive quarterly audit for 6 months to confirm no masked gaps."', bad: '(Stage doesn\'t exist in traditional approach)' },
+    close: { title: 'Archive / Close', desc: 'Archive for future review if repeated triggers are observed. Close if the risk has been fully avoided. Evidence-based, not calendar-based.', good: '"3 consecutive quarterly audits clean. No stale credentials detected. Closing with archive flag for future vendor transitions."', bad: '"Closed — fixed."' }
+  };
+
+  function showStage(key, btn) {
+    const d = stageData[key];
+    document.getElementById('stageContent').innerHTML = `
+      <p class="font-semibold text-surface-800 mb-1">${d.title}</p>
+      <p class="text-sm text-surface-600 mb-4">${d.desc}</p>
+      <div class="grid grid-cols-2 gap-3 text-sm">
+        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+          <p class="font-medium text-emerald-700 mb-1 text-xs">Good</p>
+          <p class="text-emerald-700 text-xs">${d.good}</p>
+        </div>
+        <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+          <p class="font-medium text-red-700 mb-1 text-xs">Weak</p>
+          <p class="text-red-700 text-xs">${d.bad}</p>
+        </div>
+      </div>
+    `;
+    btn.parentElement.querySelectorAll('.tab-btn').forEach(b => {
+      b.className = 'tab-btn px-3 py-1.5 rounded-md text-xs font-medium text-surface-600 bg-white border border-surface-200';
+    });
+    btn.className = 'tab-btn active px-3 py-1.5 rounded-md text-xs font-medium';
+  }
+
+  function showPage(id) {
+    document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+    const page = document.getElementById('page-' + id);
+    if (page) {
+      page.style.display = 'block';
+      page.classList.remove('fade-in');
+      void page.offsetWidth;
+      page.classList.add('fade-in');
+    }
+    // Update nav
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    event.target.closest('.nav-link')?.classList.add('active');
+    // Update breadcrumb
+    const h1 = page?.querySelector('h1');
+    if (h1) document.getElementById('breadcrumb').textContent = h1.textContent;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function toggleExpand(el) {
+    const content = el.querySelector('.expand-content');
+    if (content) {
+      content.classList.toggle('open');
+      el.classList.toggle('open');
+    }
+  }
+
+  function filterGlossary(query) {
+    const items = document.querySelectorAll('#glossaryList .glossary-item');
+    const q = query.toLowerCase();
+    items.forEach(item => {
+      const term = item.getAttribute('data-term') || item.textContent.toLowerCase();
+      item.style.display = term.includes(q) ? '' : 'none';
+    });
+  }
+
+  const roleDetails = {
+    identifier: {
+      title: 'Risk Identifier',
+      color: 'blue',
+      responsibilities: [
+        'Observe and report risks you encounter in your day-to-day work',
+        'Provide enough context for someone else to understand and act',
+        'Use the risk intake tool to submit structured, quality data',
+        'Respond to follow-up questions from GRC or the risk owner'
+      ],
+      notExpected: [
+        'Know GRC terminology or methodology — the tool guides you',
+        'Determine the "correct" risk response strategy — you can say "not sure"',
+        'Chase up or manage the risk after submission — that\'s the owner\'s job'
+      ],
+      howProcessHelps: 'The new intake form is designed for you. Progressive disclosure asks only what\'s needed at each step. Inline guidance explains every field. You can submit a risk in under 15 minutes with no GRC expertise.'
+    },
+    owner: {
+      title: 'Risk Owner',
+      color: 'emerald',
+      responsibilities: [
+        'Own the treatment plan — define what needs to happen and by when',
+        'Monitor triggers that would change the risk level',
+        'Ensure delivery against the timing plan',
+        'Escalate if treatment is off-track or triggers increase'
+      ],
+      notExpected: [
+        'Manually chase submitters for missing data — the intake tool handles quality at entry',
+        'Reconcile risk data from spreadsheets — one source of truth',
+        'Write quarterly risk reports from scratch — reporting-ready data is the goal'
+      ],
+      howProcessHelps: 'Risks arrive with context, structured data, and suggested owners. You spend time managing and treating risks, not cleaning data or deciphering vague descriptions.'
+    },
+    manager: {
+      title: 'Risk Manager / GRC',
+      color: 'purple',
+      responsibilities: [
+        'Govern the risk process — maintain taxonomy, review flagged submissions',
+        'Review low-confidence submissions in the human review queue',
+        'Maintain and improve the enrichment pipeline rules',
+        'Report on enterprise risk posture using clean, aggregated data'
+      ],
+      notExpected: [
+        'Be the single point of data entry — risk owners and identifiers submit directly',
+        'Manually reconcile data from multiple sources — single intake, single source of truth',
+        'Correct taxonomy after entry — it\'s enforced at the point of submission'
+      ],
+      howProcessHelps: 'GRC shifts from bottleneck to governance layer. You review and govern, not chase and clean. The enrichment pipeline handles classification; you handle the edge cases that need judgement.'
+    },
+    exec: {
+      title: 'Executive / Decision-Maker',
+      color: 'amber',
+      responsibilities: [
+        'Use risk data to inform governance and investment decisions',
+        'Set risk appetite and approval thresholds',
+        'Hold risk owners accountable for treatment delivery',
+        'Champion the risk management culture'
+      ],
+      notExpected: [
+        'Wait days for a manually prepared risk report — reporting-ready data is the goal',
+        'Trust a register you know is incomplete — data quality is fixed at the source',
+        'Interpret inconsistent scoring — unified taxonomy means comparable data'
+      ],
+      howProcessHelps: 'Clean, complete, consistently structured risk data available on demand. No manual reconciliation. Comparable scoring across all departments. The foundation for the aggregated enterprise view you need.'
+    }
+  };
+
+  function showRole(key) {
+    const r = roleDetails[key];
+    const detail = document.getElementById('roleDetail');
+    detail.style.display = 'block';
+    detail.innerHTML = `
+      <h3 class="text-lg font-semibold mb-4">${r.title}</h3>
+      <div class="space-y-4">
+        <div>
+          <p class="font-medium text-sm text-surface-700 mb-2">What you're expected to do</p>
+          <ul class="space-y-1.5">${r.responsibilities.map(r => `<li class="flex items-start gap-2 text-sm"><svg class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span class="text-surface-600">${r}</span></li>`).join('')}</ul>
+        </div>
+        <div>
+          <p class="font-medium text-sm text-surface-700 mb-2">What you're NOT expected to do</p>
+          <ul class="space-y-1.5">${r.notExpected.map(r => `<li class="flex items-start gap-2 text-sm"><svg class="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg><span class="text-surface-600">${r}</span></li>`).join('')}</ul>
+        </div>
+        <div class="bg-brand-50 border border-brand-200 rounded-lg p-4">
+          <p class="font-medium text-brand-800 text-sm mb-1">How the new process supports you</p>
+          <p class="text-brand-700 text-sm">${r.howProcessHelps}</p>
+        </div>
+      </div>
+    `;
+    detail.classList.remove('fade-in');
+    void detail.offsetWidth;
+    detail.classList.add('fade-in');
+  }
+</script>
+
+</body>
+</html>

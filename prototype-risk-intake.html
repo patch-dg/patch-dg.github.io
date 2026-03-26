@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="googlebot" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Risk Intake — Prototype</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        brand: { 50: '#f0f4ff', 100: '#dbe4ff', 200: '#bac8ff', 300: '#91a7ff', 400: '#748ffc', 500: '#5c7cfa', 600: '#4c6ef5', 700: '#4263eb', 800: '#3b5bdb', 900: '#364fc7' },
+        surface: { 50: '#f8f9fa', 100: '#f1f3f5', 200: '#e9ecef', 300: '#dee2e6', 400: '#ced4da', 500: '#adb5bd', 600: '#868e96', 700: '#495057', 800: '#343a40', 900: '#212529' }
+      }
+    }
+  }
+}
+</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .fade-in { animation: fadeIn 0.35s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .intake-field { transition: all 0.2s; }
+  .intake-field:focus-within { border-color: #4263eb; box-shadow: 0 0 0 3px rgba(66,99,235,0.1); }
+  .chip { transition: all 0.15s; cursor: pointer; user-select: none; }
+  .chip:hover { border-color: #4263eb; background: #f0f4ff; }
+  .chip.selected { border-color: #4263eb; background: #dbe4ff; color: #3b5bdb; font-weight: 500; }
+  .likelihood-option { transition: all 0.15s; cursor: pointer; }
+  .likelihood-option:hover { border-color: #4263eb; background: #f0f4ff; }
+  .likelihood-option.selected { border-color: #4263eb; background: #dbe4ff; }
+  .impact-option { transition: all 0.15s; cursor: pointer; }
+  .impact-option:hover { border-color: #4263eb; }
+  .impact-option.selected { border-color: #4263eb; background: #f0f4ff; }
+  .step-indicator { transition: all 0.3s; }
+  .progress-bar { height: 3px; background: #e9ecef; }
+  .progress-fill { height: 100%; background: #4263eb; transition: width 0.5s ease; }
+  .risk-matrix-cell { transition: all 0.2s; font-size: 11px; }
+  .risk-matrix-cell.highlighted { transform: scale(1.15); box-shadow: 0 0 0 2px #4263eb; z-index: 10; position: relative; }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-thumb { background: #ced4da; border-radius: 3px; }
+</style>
+</head>
+<body class="bg-surface-50 text-surface-900 min-h-screen">
+
+<!-- App Shell -->
+<div class="max-w-3xl mx-auto">
+
+  <!-- App Header -->
+  <div class="sticky top-0 z-50 bg-surface-900 text-white px-6 py-4 flex items-center justify-between rounded-b-xl shadow-lg">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+      </div>
+      <span class="font-semibold">Submit a Risk</span>
+    </div>
+    <div class="flex items-center gap-2 text-sm text-surface-400">
+      <div class="w-7 h-7 bg-surface-700 rounded-full flex items-center justify-center text-xs font-medium text-surface-300">JD</div>
+      <div class="text-right leading-tight">
+        <div class="text-surface-300 text-xs">Jane Doe</div>
+        <div class="text-surface-500 text-xs">IT Operations</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Training Mode Banner -->
+  <div class="mx-6 mt-4 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 flex items-center gap-2">
+    <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+    <span class="text-sm text-amber-800 font-medium">Training Mode</span>
+    <span class="text-sm text-amber-600">— Scenario SC-001: "The Vendor That Never Left"</span>
+  </div>
+
+  <!-- Progress Steps -->
+  <div class="px-6 pt-5 pb-2">
+    <div class="flex items-center gap-1 text-xs font-medium" id="progressSteps">
+      <button onclick="goToStep(0)" class="step-indicator px-3 py-1.5 rounded-full bg-brand-600 text-white">1. Describe</button>
+      <div class="flex-1 progress-bar rounded"><div class="progress-fill rounded" id="prog1" style="width:100%"></div></div>
+      <button onclick="goToStep(1)" class="step-indicator px-3 py-1.5 rounded-full bg-surface-200 text-surface-500">2. Impact</button>
+      <div class="flex-1 progress-bar rounded"><div class="progress-fill rounded" id="prog2" style="width:0%"></div></div>
+      <button onclick="goToStep(2)" class="step-indicator px-3 py-1.5 rounded-full bg-surface-200 text-surface-500">3. Assess</button>
+      <div class="flex-1 progress-bar rounded"><div class="progress-fill rounded" id="prog3" style="width:0%"></div></div>
+      <button onclick="goToStep(3)" class="step-indicator px-3 py-1.5 rounded-full bg-surface-200 text-surface-500">4. Respond</button>
+      <div class="flex-1 progress-bar rounded"><div class="progress-fill rounded" id="prog4" style="width:0%"></div></div>
+      <button onclick="goToStep(4)" class="step-indicator px-3 py-1.5 rounded-full bg-surface-200 text-surface-500">5. Review</button>
+    </div>
+  </div>
+
+  <!-- ====== STEP 0: DESCRIBE ====== -->
+  <div class="step-panel px-6 py-6 fade-in" id="step0">
+    <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6 space-y-5">
+      <div>
+        <h2 class="text-xl font-semibold mb-1">What is the risk?</h2>
+        <p class="text-sm text-surface-500">Describe what you've observed. No GRC expertise needed — just tell us what's happening.</p>
+      </div>
+
+      <!-- Risk Title -->
+      <div>
+        <label class="block text-sm font-medium text-surface-700 mb-1.5">Risk title</label>
+        <div class="intake-field border border-surface-300 rounded-lg px-4 py-2.5">
+          <span class="text-surface-800">Contractor VPN accounts not deprovisioned after offboarding</span>
+        </div>
+        <p class="text-xs text-surface-400 mt-1.5">Give the risk a short, clear name. Example: "Regulatory deadline risk for Q3 reporting"</p>
+      </div>
+
+      <!-- Risk Description -->
+      <div>
+        <label class="block text-sm font-medium text-surface-700 mb-1.5">Risk description</label>
+        <div class="intake-field border border-surface-300 rounded-lg px-4 py-3 min-h-[80px]">
+          <span class="text-surface-800">Three contractor accounts from our previous infrastructure vendor still have active VPN credentials, 3 months after the contract ended. The staging environment they can access mirrors production data including customer records.</span>
+        </div>
+        <p class="text-xs text-surface-400 mt-1.5">Describe what could go wrong, and why it matters. 2-4 sentences is enough.</p>
+      </div>
+
+      <!-- Routing flags -->
+      <div>
+        <label class="block text-sm font-medium text-surface-700 mb-2">Is this risk related to any of the following? <span class="text-surface-400 font-normal">(optional)</span></label>
+        <div class="flex gap-2">
+          <div class="chip selected border border-brand-300 rounded-full px-3.5 py-1.5 text-sm bg-brand-50 text-brand-700">Cybersecurity</div>
+          <div class="chip border border-surface-300 rounded-full px-3.5 py-1.5 text-sm text-surface-600">Country iSMS programme</div>
+        </div>
+      </div>
+
+      <!-- AI Suggestion -->
+      <div class="bg-brand-50 border border-brand-200 rounded-lg p-4">
+        <div class="flex items-start gap-3">
+          <div class="flex-shrink-0 w-6 h-6 bg-brand-200 rounded-full flex items-center justify-center mt-0.5">
+            <svg class="w-3.5 h-3.5 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <div class="text-sm">
+            <p class="font-medium text-brand-800 mb-1">Suggestion</p>
+            <p class="text-brand-700">Your description is clear and specific. Consider mentioning how many total contractor accounts may be affected (not just the 3 you've confirmed) and whether an offboarding process should have caught this.</p>
+            <div class="flex gap-2 mt-3">
+              <button class="px-3 py-1 text-xs bg-brand-600 text-white rounded-md hover:bg-brand-700 transition">Apply suggestion</button>
+              <button class="px-3 py-1 text-xs text-brand-600 hover:bg-brand-100 rounded-md transition">Dismiss</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end mt-4">
+      <button onclick="goToStep(1)" class="px-6 py-2.5 bg-brand-700 text-white text-sm font-medium rounded-lg hover:bg-brand-800 transition flex items-center gap-2">Next: Impact <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+  </div>
+
+  <!-- ====== STEP 1: IMPACT ====== -->
+  <div class="step-panel px-6 py-6 fade-in" id="step1" style="display:none">
+    <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6 space-y-5">
+      <div>
+        <h2 class="text-xl font-semibold mb-1">Who and what is affected?</h2>
+        <p class="text-sm text-surface-500">Help us understand the scope. Select all areas this risk could impact.</p>
+      </div>
+
+      <!-- Impact Categories -->
+      <div>
+        <label class="block text-sm font-medium text-surface-700 mb-2">Impact area(s)</label>
+        <p class="text-xs text-surface-400 mb-3">Select all that apply. Hover for a short description of each category.</p>
+        <div class="flex flex-wrap gap-2" id="impactChips">
+          <div class="chip border border-surface-300 rounded-full px-3.5 py-1.5 text-sm text-surface-600" onclick="toggleChip(this)" title="Software applications and platforms">Software</div>
+          <div class="chip border border-surface-300 rounded-full px-3.5 py-1.5 text-sm text-surface-600" onclick="toggleChip(this)" title="Devices, factory IT, mobile, end-user computing">Hardware</div>
+          <div class="chip border border-surface-300 rounded-full px-3.5 py-1.5 text-sm text-surface-600" onclick="toggleChip(this)" title="Brand, public trust, media exposure">Reputation</div>
+          <div class="chip border border-surface-300 rounded-full px-3.5 py-1.5 text-sm text-surface-600" onclick="toggleChip(this)" title="Products sold to customers">Products</div>
+          <div class="chip border border-surface-300 rounded-full px-3.5 py-1.5 text-sm text-surface-600" onclick="toggleChip(this)" title="One or more business units affected">Business Unit(s)</div>
+          <div class="chip border border-surface-300 rounded-full px-3.5 py-1.5 text-sm text-surface-600" onclick="toggleChip(this)" title="Corporate-level function affected">Corporate Function(s)</div>
+          <div class="chip border border-surface-300 rounded-full px-3.5 py-1.5 text-sm text-surface-600" onclick="toggleChip(this)" title="Policies, procedures, records">Documentation</div>
+          <div class="chip selected border border-brand-300 rounded-full px-3.5 py-1.5 text-sm bg-brand-50 text-brand-700" onclick="toggleChip(this)" title="Compliance, regulatory obligations, contractual requirements">Legal / Regulatory</div>
+          <div class="chip border border-surface-300 rounded-full px-3.5 py-1.5 text-sm text-surface-600" onclick="toggleChip(this)" title="Health & safety, insider threat, attrition, training">People</div>
+          <div class="chip selected border border-brand-300 rounded-full px-3.5 py-1.5 text-sm bg-brand-50 text-brand-700" onclick="toggleChip(this)" title="Physical or logical access, including credentials">Access</div>
+          <div class="chip selected border border-brand-300 rounded-full px-3.5 py-1.5 text-sm bg-brand-50 text-brand-700" onclick="toggleChip(this)" title="Known or potential vulnerabilities and threat vectors">Threats & Vulnerabilities</div>
+          <div class="chip border border-surface-300 rounded-full px-3.5 py-1.5 text-sm text-surface-600" onclick="toggleChip(this)" title="Direct or indirect financial impact">Finance</div>
+          <div class="chip selected border border-brand-300 rounded-full px-3.5 py-1.5 text-sm bg-brand-50 text-brand-700" onclick="toggleChip(this)" title="Operational processes affected">Process(es)</div>
+          <div class="chip border border-surface-300 rounded-full px-3.5 py-1.5 text-sm text-surface-600" onclick="toggleChip(this)" title="Confirmed or attempted cyber attack">Successful Cyber Attack</div>
+        </div>
+      </div>
+
+      <!-- Risk Owner -->
+      <div>
+        <label class="block text-sm font-medium text-surface-700 mb-1.5">Probable risk owner</label>
+        <div class="intake-field border border-surface-300 rounded-lg px-4 py-2.5 flex items-center gap-3">
+          <svg class="w-4 h-4 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <span class="text-surface-800">Mark Thompson</span>
+          <span class="text-xs text-surface-400 ml-1">— IT Infrastructure Manager</span>
+        </div>
+        <p class="text-xs text-surface-400 mt-1.5">Who is most responsible for the area this risk sits in? Leave blank if unsure — it will be assigned during review.</p>
+      </div>
+
+      <!-- Smart suggestion -->
+      <div class="bg-surface-50 border border-surface-200 rounded-lg p-3">
+        <div class="flex items-start gap-2">
+          <svg class="w-4 h-4 text-surface-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <p class="text-xs text-surface-500">Based on your selected categories and department, these people are often responsible: <strong class="text-surface-700">Mark Thompson</strong> (IT Infra), <strong class="text-surface-700">Sarah Lin</strong> (Security Ops), <strong class="text-surface-700">David Chen</strong> (Vendor Management)</p>
+        </div>
+      </div>
+
+      <!-- Affected BU -->
+      <div>
+        <label class="block text-sm font-medium text-surface-700 mb-1.5">Affected business unit / function</label>
+        <div class="intake-field border border-surface-300 rounded-lg px-4 py-2.5 flex items-center justify-between">
+          <span class="text-surface-800">IT Operations</span>
+          <span class="text-xs text-surface-400 bg-surface-100 px-2 py-0.5 rounded">Auto-populated from your profile</span>
+        </div>
+        <p class="text-xs text-surface-400 mt-1.5">Pre-filled from your profile. Change it if the risk affects a different unit.</p>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between mt-4">
+      <button onclick="goToStep(0)" class="px-5 py-2.5 text-sm font-medium text-surface-600 hover:text-surface-800 transition flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg> Back</button>
+      <button onclick="goToStep(2)" class="px-6 py-2.5 bg-brand-700 text-white text-sm font-medium rounded-lg hover:bg-brand-800 transition flex items-center gap-2">Next: Assess <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+  </div>
+
+  <!-- ====== STEP 2: ASSESS ====== -->
+  <div class="step-panel px-6 py-6 fade-in" id="step2" style="display:none">
+    <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6 space-y-6">
+      <div>
+        <h2 class="text-xl font-semibold mb-1">How likely and how bad?</h2>
+        <p class="text-sm text-surface-500">Use the plain-language descriptions below. No external documents needed — everything is explained here.</p>
+      </div>
+
+      <!-- Likelihood -->
+      <div>
+        <label class="block text-sm font-medium text-surface-700 mb-3">Likelihood — how often could this happen?</label>
+        <div class="space-y-2" id="likelihoodOptions">
+          <div class="likelihood-option border border-surface-200 rounded-lg p-3 flex items-center gap-4" onclick="selectLikelihood(this, 0)">
+            <div class="flex-shrink-0 w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center text-sm font-bold text-red-700">5</div>
+            <div>
+              <p class="font-medium text-surface-800">Almost certain</p>
+              <p class="text-xs text-surface-500">More than once a quarter — this is happening or about to happen</p>
+            </div>
+          </div>
+          <div class="likelihood-option selected border border-brand-300 bg-brand-50 rounded-lg p-3 flex items-center gap-4" onclick="selectLikelihood(this, 1)">
+            <div class="flex-shrink-0 w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center text-sm font-bold text-orange-700">4</div>
+            <div>
+              <p class="font-medium text-surface-800">Likely</p>
+              <p class="text-xs text-surface-500">Once a year to once a quarter — has happened before or strong indicators it will</p>
+            </div>
+            <div class="ml-auto">
+              <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            </div>
+          </div>
+          <div class="likelihood-option border border-surface-200 rounded-lg p-3 flex items-center gap-4" onclick="selectLikelihood(this, 2)">
+            <div class="flex-shrink-0 w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center text-sm font-bold text-amber-700">3</div>
+            <div>
+              <p class="font-medium text-surface-800">Possible</p>
+              <p class="text-xs text-surface-500">About once a year — could happen under certain conditions</p>
+            </div>
+          </div>
+          <div class="likelihood-option border border-surface-200 rounded-lg p-3 flex items-center gap-4" onclick="selectLikelihood(this, 3)">
+            <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-sm font-bold text-blue-700">2</div>
+            <div>
+              <p class="font-medium text-surface-800">Unlikely</p>
+              <p class="text-xs text-surface-500">About once every 3 years — would require unusual circumstances</p>
+            </div>
+          </div>
+          <div class="likelihood-option border border-surface-200 rounded-lg p-3 flex items-center gap-4" onclick="selectLikelihood(this, 4)">
+            <div class="flex-shrink-0 w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center text-sm font-bold text-emerald-700">1</div>
+            <div>
+              <p class="font-medium text-surface-800">Rare</p>
+              <p class="text-xs text-surface-500">Once every 10 years or less — exceptional, near-theoretical</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Impact Severity -->
+      <div>
+        <label class="block text-sm font-medium text-surface-700 mb-3">Impact severity — if it happens, how bad is it?</label>
+        <div class="space-y-2" id="impactOptions">
+          <div class="impact-option selected border-2 border-brand-300 bg-brand-50/50 rounded-lg overflow-hidden" onclick="selectImpact(this, 0)">
+            <div class="flex items-center gap-4 p-3">
+              <div class="flex-shrink-0 w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center text-sm font-bold text-white">5</div>
+              <div class="flex-1">
+                <p class="font-medium text-surface-800">Very High</p>
+                <p class="text-xs text-surface-500">Major disruption at corporate level</p>
+              </div>
+              <svg class="w-5 h-5 text-brand-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <!-- Expanded definition panel -->
+            <div class="bg-white border-t border-brand-200 p-4 text-sm space-y-2" id="impactDetail">
+              <p class="text-surface-700">Could cause one or more of the following:</p>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="bg-red-50 rounded p-2">
+                  <p class="font-medium text-red-700">Financial</p>
+                  <p class="text-red-600">Significant financial loss exceeding threshold</p>
+                </div>
+                <div class="bg-red-50 rounded p-2">
+                  <p class="font-medium text-red-700">Operational</p>
+                  <p class="text-red-600">Major operational disruption affecting services</p>
+                </div>
+                <div class="bg-red-50 rounded p-2">
+                  <p class="font-medium text-red-700">Regulatory</p>
+                  <p class="text-red-600">Regulatory breach, mandatory reporting, GDPR notification</p>
+                </div>
+                <div class="bg-red-50 rounded p-2">
+                  <p class="font-medium text-red-700">Reputational</p>
+                  <p class="text-red-600">Serious reputational damage at a corporate level</p>
+                </div>
+              </div>
+              <p class="text-surface-500 text-xs italic">Board-level visibility expected. This replaces the 9-page PDF — everything you need is right here.</p>
+            </div>
+          </div>
+          <div class="impact-option border border-surface-200 rounded-lg" onclick="selectImpact(this, 1)">
+            <div class="flex items-center gap-4 p-3">
+              <div class="flex-shrink-0 w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center text-sm font-bold text-white">4</div>
+              <div class="flex-1">
+                <p class="font-medium text-surface-800">High</p>
+                <p class="text-xs text-surface-500">Significant impact to a business unit or function</p>
+              </div>
+              <svg class="w-5 h-5 text-surface-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+          <div class="impact-option border border-surface-200 rounded-lg" onclick="selectImpact(this, 2)">
+            <div class="flex items-center gap-4 p-3">
+              <div class="flex-shrink-0 w-10 h-10 bg-amber-400 rounded-lg flex items-center justify-center text-sm font-bold text-white">3</div>
+              <div class="flex-1">
+                <p class="font-medium text-surface-800">Medium</p>
+                <p class="text-xs text-surface-500">Moderate impact, contained within a team or process</p>
+              </div>
+              <svg class="w-5 h-5 text-surface-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+          <div class="impact-option border border-surface-200 rounded-lg" onclick="selectImpact(this, 3)">
+            <div class="flex items-center gap-4 p-3">
+              <div class="flex-shrink-0 w-10 h-10 bg-blue-400 rounded-lg flex items-center justify-center text-sm font-bold text-white">2</div>
+              <div class="flex-1">
+                <p class="font-medium text-surface-800">Low</p>
+                <p class="text-xs text-surface-500">Minor impact, easily absorbed</p>
+              </div>
+              <svg class="w-5 h-5 text-surface-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+          <div class="impact-option border border-surface-200 rounded-lg" onclick="selectImpact(this, 4)">
+            <div class="flex items-center gap-4 p-3">
+              <div class="flex-shrink-0 w-10 h-10 bg-emerald-400 rounded-lg flex items-center justify-center text-sm font-bold text-white">1</div>
+              <div class="flex-1">
+                <p class="font-medium text-surface-800">Very Low</p>
+                <p class="text-xs text-surface-500">Negligible impact</p>
+              </div>
+              <svg class="w-5 h-5 text-surface-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Risk Matrix -->
+      <div>
+        <label class="block text-sm font-medium text-surface-700 mb-3">Your risk on the matrix</label>
+        <div class="bg-surface-50 rounded-xl p-4 overflow-x-auto">
+          <table class="w-full text-center" style="min-width: 420px;">
+            <thead>
+              <tr>
+                <th class="w-20"></th>
+                <th class="text-xs text-surface-400 font-medium py-1">Very Low</th>
+                <th class="text-xs text-surface-400 font-medium py-1">Low</th>
+                <th class="text-xs text-surface-400 font-medium py-1">Medium</th>
+                <th class="text-xs text-surface-400 font-medium py-1">High</th>
+                <th class="text-xs text-surface-400 font-medium py-1">Very High</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-xs text-surface-400 font-medium text-right pr-2 py-0.5">Almost certain</td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-amber-300 flex items-center justify-center text-amber-900">M</div></td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-orange-400 flex items-center justify-center text-white">H</div></td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-red-400 flex items-center justify-center text-white">H</div></td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-red-600 flex items-center justify-center text-white">VH</div></td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-red-800 flex items-center justify-center text-white">VH</div></td>
+              </tr>
+              <tr>
+                <td class="text-xs text-surface-400 font-medium text-right pr-2 py-0.5">Likely</td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-emerald-300 flex items-center justify-center text-emerald-900">L</div></td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-amber-300 flex items-center justify-center text-amber-900">M</div></td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-orange-400 flex items-center justify-center text-white">H</div></td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-red-400 flex items-center justify-center text-white">H</div></td>
+                <td><div class="risk-matrix-cell highlighted mx-auto w-12 h-8 rounded bg-red-600 flex items-center justify-center text-white font-bold ring-2 ring-brand-500 ring-offset-2">VH</div></td>
+              </tr>
+              <tr>
+                <td class="text-xs text-surface-400 font-medium text-right pr-2 py-0.5">Possible</td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-emerald-200 flex items-center justify-center text-emerald-800">VL</div></td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-emerald-300 flex items-center justify-center text-emerald-900">L</div></td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-amber-300 flex items-center justify-center text-amber-900">M</div></td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-orange-400 flex items-center justify-center text-white">H</div></td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-red-400 flex items-center justify-center text-white">H</div></td>
+              </tr>
+              <tr>
+                <td class="text-xs text-surface-400 font-medium text-right pr-2 py-0.5">Unlikely</td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-emerald-200 flex items-center justify-center text-emerald-800">VL</div></td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-emerald-200 flex items-center justify-center text-emerald-800">VL</div></td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-emerald-300 flex items-center justify-center text-emerald-900">L</div></td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-amber-300 flex items-center justify-center text-amber-900">M</div></td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-orange-400 flex items-center justify-center text-white">H</div></td>
+              </tr>
+              <tr>
+                <td class="text-xs text-surface-400 font-medium text-right pr-2 py-0.5">Rare</td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-emerald-200 flex items-center justify-center text-emerald-800">VL</div></td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-emerald-200 flex items-center justify-center text-emerald-800">VL</div></td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-emerald-200 flex items-center justify-center text-emerald-800">VL</div></td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-emerald-300 flex items-center justify-center text-emerald-900">L</div></td>
+                <td><div class="risk-matrix-cell mx-auto w-12 h-8 rounded bg-amber-300 flex items-center justify-center text-amber-900">M</div></td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="text-xs text-surface-500 text-center mt-3">Your selection: <strong class="text-surface-800">Likely</strong> x <strong class="text-surface-800">Very High</strong> = <strong class="text-red-600">Very High Risk</strong>. The matrix updates live as you change your selections.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between mt-4">
+      <button onclick="goToStep(1)" class="px-5 py-2.5 text-sm font-medium text-surface-600 hover:text-surface-800 transition flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg> Back</button>
+      <button onclick="goToStep(3)" class="px-6 py-2.5 bg-brand-700 text-white text-sm font-medium rounded-lg hover:bg-brand-800 transition flex items-center gap-2">Next: Respond <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+  </div>
+
+  <!-- ====== STEP 3: RESPOND ====== -->
+  <div class="step-panel px-6 py-6 fade-in" id="step3" style="display:none">
+    <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6 space-y-5">
+      <div>
+        <h2 class="text-xl font-semibold mb-1">Controls and response</h2>
+        <p class="text-sm text-surface-500">What's already in place, and what should happen next?</p>
+      </div>
+
+      <!-- Controls in place -->
+      <div>
+        <label class="block text-sm font-medium text-surface-700 mb-1.5">Controls already in place</label>
+        <div class="intake-field border border-surface-300 rounded-lg px-4 py-3 min-h-[90px]">
+          <p class="text-surface-800">- VPN access requires individual credentials (no shared accounts)</p>
+          <p class="text-surface-800">- Staging environment has network segmentation from production</p>
+          <p class="text-surface-800">- No automated offboarding process for external credentials</p>
+        </div>
+        <p class="text-xs text-surface-400 mt-1.5">List any steps, tools, or processes already in place that reduce the chance or impact of this risk. One per line. It's OK to say "none."</p>
+      </div>
+
+      <!-- Response Strategy -->
+      <div>
+        <label class="block text-sm font-medium text-surface-700 mb-3">Proposed response</label>
+        <div class="space-y-2">
+          <div class="likelihood-option selected border border-brand-300 bg-brand-50 rounded-lg p-3 flex items-start gap-3" onclick="selectResponse(this)">
+            <div class="flex-shrink-0 w-6 h-6 bg-brand-600 rounded-full flex items-center justify-center mt-0.5">
+              <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div>
+              <p class="font-medium text-surface-800">Mitigate</p>
+              <p class="text-xs text-surface-500">Take action to reduce the likelihood or impact of the risk.</p>
+            </div>
+          </div>
+          <div class="likelihood-option border border-surface-200 rounded-lg p-3 flex items-start gap-3" onclick="selectResponse(this)">
+            <div class="flex-shrink-0 w-6 h-6 bg-surface-200 rounded-full mt-0.5"></div>
+            <div>
+              <p class="font-medium text-surface-800">Avoid</p>
+              <p class="text-xs text-surface-500">Change plans to eliminate the risk entirely.</p>
+            </div>
+          </div>
+          <div class="likelihood-option border border-surface-200 rounded-lg p-3 flex items-start gap-3" onclick="selectResponse(this)">
+            <div class="flex-shrink-0 w-6 h-6 bg-surface-200 rounded-full mt-0.5"></div>
+            <div>
+              <p class="font-medium text-surface-800">Transfer</p>
+              <p class="text-xs text-surface-500">Shift the risk to a third party (e.g. insurance, outsourcing).</p>
+            </div>
+          </div>
+          <div class="likelihood-option border border-surface-200 rounded-lg p-3 flex items-start gap-3" onclick="selectResponse(this)">
+            <div class="flex-shrink-0 w-6 h-6 bg-surface-200 rounded-full mt-0.5"></div>
+            <div>
+              <p class="font-medium text-surface-800">Accept</p>
+              <p class="text-xs text-surface-500">Acknowledge the risk and take no further action. Document the rationale.</p>
+            </div>
+          </div>
+          <div class="likelihood-option border border-surface-200 rounded-lg p-3 flex items-start gap-3 bg-surface-50" onclick="selectResponse(this)">
+            <div class="flex-shrink-0 w-6 h-6 bg-surface-200 rounded-full mt-0.5"></div>
+            <div>
+              <p class="font-medium text-surface-800">Not sure — needs review</p>
+              <p class="text-xs text-surface-500">Route this to the GRC team for recommendation. No judgement — this is the honest answer when you're unsure.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between mt-4">
+      <button onclick="goToStep(2)" class="px-5 py-2.5 text-sm font-medium text-surface-600 hover:text-surface-800 transition flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg> Back</button>
+      <button onclick="goToStep(4)" class="px-6 py-2.5 bg-brand-700 text-white text-sm font-medium rounded-lg hover:bg-brand-800 transition flex items-center gap-2">Next: Review <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+  </div>
+
+  <!-- ====== STEP 4: REVIEW ====== -->
+  <div class="step-panel px-6 py-6 fade-in" id="step4" style="display:none">
+    <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-6 space-y-5">
+      <div>
+        <h2 class="text-xl font-semibold mb-1">Review and submit</h2>
+        <p class="text-sm text-surface-500">Check everything below. Click "Edit" on any section to make changes.</p>
+      </div>
+
+      <!-- Summary Card: Describe -->
+      <div class="border border-surface-200 rounded-xl overflow-hidden">
+        <div class="flex items-center justify-between px-4 py-2.5 bg-surface-50 border-b border-surface-200">
+          <p class="text-sm font-medium text-surface-700">1. Description</p>
+          <button class="text-xs text-brand-600 font-medium hover:text-brand-800" onclick="goToStep(0)">Edit</button>
+        </div>
+        <div class="p-4 text-sm space-y-2">
+          <p class="font-medium text-surface-800">Contractor VPN accounts not deprovisioned after offboarding</p>
+          <p class="text-surface-600">Three contractor accounts from our previous infrastructure vendor still have active VPN credentials, 3 months after the contract ended. The staging environment they can access mirrors production data including customer records.</p>
+          <div class="flex gap-1.5 mt-1">
+            <span class="text-xs bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full">Cybersecurity</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary Card: Impact -->
+      <div class="border border-surface-200 rounded-xl overflow-hidden">
+        <div class="flex items-center justify-between px-4 py-2.5 bg-surface-50 border-b border-surface-200">
+          <p class="text-sm font-medium text-surface-700">2. Impact</p>
+          <button class="text-xs text-brand-600 font-medium hover:text-brand-800" onclick="goToStep(1)">Edit</button>
+        </div>
+        <div class="p-4 text-sm space-y-2">
+          <div class="flex flex-wrap gap-1.5">
+            <span class="text-xs bg-surface-100 text-surface-700 px-2 py-0.5 rounded-full">Legal / Regulatory</span>
+            <span class="text-xs bg-surface-100 text-surface-700 px-2 py-0.5 rounded-full">Access</span>
+            <span class="text-xs bg-surface-100 text-surface-700 px-2 py-0.5 rounded-full">Threats & Vulnerabilities</span>
+            <span class="text-xs bg-surface-100 text-surface-700 px-2 py-0.5 rounded-full">Process(es)</span>
+          </div>
+          <p class="text-surface-600">Owner: <strong>Mark Thompson</strong> — IT Infrastructure Manager</p>
+          <p class="text-surface-600">Affected unit: IT Operations</p>
+        </div>
+      </div>
+
+      <!-- Summary Card: Assessment -->
+      <div class="border border-surface-200 rounded-xl overflow-hidden">
+        <div class="flex items-center justify-between px-4 py-2.5 bg-surface-50 border-b border-surface-200">
+          <p class="text-sm font-medium text-surface-700">3. Assessment</p>
+          <button class="text-xs text-brand-600 font-medium hover:text-brand-800" onclick="goToStep(2)">Edit</button>
+        </div>
+        <div class="p-4 text-sm">
+          <div class="flex items-center gap-6">
+            <div>
+              <p class="text-xs text-surface-400">Likelihood</p>
+              <p class="font-medium text-surface-800">Likely <span class="text-surface-400 font-normal">(4/5)</span></p>
+            </div>
+            <div>
+              <p class="text-xs text-surface-400">Impact</p>
+              <p class="font-medium text-surface-800">Very High <span class="text-surface-400 font-normal">(5/5)</span></p>
+            </div>
+            <div class="ml-auto">
+              <div class="px-3 py-1 bg-red-100 text-red-700 rounded-lg text-sm font-semibold">Very High Risk</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary Card: Response -->
+      <div class="border border-surface-200 rounded-xl overflow-hidden">
+        <div class="flex items-center justify-between px-4 py-2.5 bg-surface-50 border-b border-surface-200">
+          <p class="text-sm font-medium text-surface-700">4. Response</p>
+          <button class="text-xs text-brand-600 font-medium hover:text-brand-800" onclick="goToStep(3)">Edit</button>
+        </div>
+        <div class="p-4 text-sm space-y-2">
+          <p class="text-surface-600"><strong>Strategy:</strong> Mitigate</p>
+          <p class="text-surface-600"><strong>Current controls:</strong> VPN individual credentials, network segmentation. No automated offboarding.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between mt-4">
+      <button onclick="goToStep(3)" class="px-5 py-2.5 text-sm font-medium text-surface-600 hover:text-surface-800 transition flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg> Back</button>
+      <button onclick="showConfirmation()" class="px-6 py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        Submit Risk
+      </button>
+    </div>
+  </div>
+
+  <!-- ====== CONFIRMATION ====== -->
+  <div class="step-panel px-6 py-6 fade-in" id="stepConfirm" style="display:none">
+    <div class="bg-white rounded-2xl border border-surface-200 shadow-sm p-8 text-center">
+      <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-5">
+        <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+      </div>
+      <h2 class="text-2xl font-bold mb-2">Risk Submitted</h2>
+      <p class="text-surface-500 mb-6">Your submission has been received and is being reviewed.</p>
+
+      <div class="bg-surface-50 rounded-xl p-5 text-left max-w-sm mx-auto mb-6">
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between">
+            <span class="text-surface-400">Reference</span>
+            <span class="font-mono font-medium text-surface-800">RSK-2026-00147</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-surface-400">Status</span>
+            <span class="inline-flex items-center gap-1 text-amber-700 font-medium"><span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span> In Review</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-surface-400">Expected review</span>
+            <span class="text-surface-800">5 business days</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="text-sm text-surface-500 mb-6">You will receive an email if further information is needed. You can check the status of your submission at any time.</p>
+
+      <div class="flex gap-3 justify-center">
+        <button onclick="goToStep(0)" class="px-5 py-2 text-sm font-medium text-brand-600 border border-brand-200 rounded-lg hover:bg-brand-50 transition">Submit another risk</button>
+        <button class="px-5 py-2 text-sm font-medium text-surface-600 border border-surface-200 rounded-lg hover:bg-surface-50 transition">View my submissions</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="h-12"></div>
+</div>
+
+<script>
+  const totalSteps = 5;
+  let currentStep = 0;
+
+  function goToStep(n) {
+    // Hide all panels
+    document.querySelectorAll('.step-panel').forEach(p => p.style.display = 'none');
+    document.getElementById('stepConfirm').style.display = 'none';
+
+    // Show target
+    document.getElementById('step' + n).style.display = 'block';
+    document.getElementById('step' + n).classList.remove('fade-in');
+    void document.getElementById('step' + n).offsetWidth;
+    document.getElementById('step' + n).classList.add('fade-in');
+    currentStep = n;
+
+    // Update progress indicators
+    const btns = document.querySelectorAll('#progressSteps > button');
+    btns.forEach((btn, i) => {
+      if (i < n) {
+        btn.className = 'step-indicator px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700';
+      } else if (i === n) {
+        btn.className = 'step-indicator px-3 py-1.5 rounded-full bg-brand-600 text-white';
+      } else {
+        btn.className = 'step-indicator px-3 py-1.5 rounded-full bg-surface-200 text-surface-500';
+      }
+    });
+
+    // Update progress bars
+    for (let i = 1; i <= 4; i++) {
+      document.getElementById('prog' + i).style.width = (n >= i ? '100%' : '0%');
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function showConfirmation() {
+    document.querySelectorAll('.step-panel').forEach(p => p.style.display = 'none');
+    const conf = document.getElementById('stepConfirm');
+    conf.style.display = 'block';
+    conf.classList.remove('fade-in');
+    void conf.offsetWidth;
+    conf.classList.add('fade-in');
+
+    const btns = document.querySelectorAll('#progressSteps > button');
+    btns.forEach(btn => {
+      btn.className = 'step-indicator px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700';
+    });
+    for (let i = 1; i <= 4; i++) {
+      document.getElementById('prog' + i).style.width = '100%';
+    }
+  }
+
+  function toggleChip(el) {
+    el.classList.toggle('selected');
+    if (el.classList.contains('selected')) {
+      el.classList.add('border-brand-300', 'bg-brand-50', 'text-brand-700');
+      el.classList.remove('border-surface-300', 'text-surface-600');
+    } else {
+      el.classList.remove('border-brand-300', 'bg-brand-50', 'text-brand-700');
+      el.classList.add('border-surface-300', 'text-surface-600');
+    }
+  }
+
+  function selectLikelihood(el, idx) {
+    document.querySelectorAll('#likelihoodOptions .likelihood-option').forEach(o => {
+      o.classList.remove('selected', 'border-brand-300', 'bg-brand-50');
+      o.classList.add('border-surface-200');
+      const check = o.querySelector('svg');
+      if (check) check.remove();
+    });
+    el.classList.add('selected', 'border-brand-300', 'bg-brand-50');
+    el.classList.remove('border-surface-200');
+    if (!el.querySelector('svg')) {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('class', 'w-5 h-5 text-brand-600 ml-auto');
+      svg.setAttribute('fill', 'none');
+      svg.setAttribute('stroke', 'currentColor');
+      svg.setAttribute('viewBox', '0 0 24 24');
+      svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>';
+      el.appendChild(svg);
+    }
+  }
+
+  function selectImpact(el, idx) {
+    document.querySelectorAll('#impactOptions .impact-option').forEach(o => {
+      o.classList.remove('selected', 'border-brand-300', 'bg-brand-50/50');
+      o.className = o.className.replace('border-2', '').trim();
+      o.classList.add('border', 'border-surface-200');
+      const detail = o.querySelector('#impactDetail');
+      if (detail) detail.remove();
+    });
+    el.classList.add('selected');
+    el.classList.remove('border-surface-200', 'border');
+    el.classList.add('border-2', 'border-brand-300', 'bg-brand-50/50');
+  }
+
+  function selectResponse(el) {
+    const parent = el.parentElement;
+    parent.querySelectorAll('.likelihood-option').forEach(o => {
+      o.classList.remove('selected', 'border-brand-300', 'bg-brand-50');
+      o.classList.add('border-surface-200');
+      const circle = o.querySelector('div > div:first-child');
+      if (circle) { circle.className = 'flex-shrink-0 w-6 h-6 bg-surface-200 rounded-full mt-0.5'; circle.innerHTML = ''; }
+    });
+    el.classList.add('selected', 'border-brand-300', 'bg-brand-50');
+    el.classList.remove('border-surface-200');
+    const circle = el.querySelector('div > div:first-child');
+    if (circle) {
+      circle.className = 'flex-shrink-0 w-6 h-6 bg-brand-600 rounded-full flex items-center justify-center mt-0.5';
+      circle.innerHTML = '<svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
+    }
+  }
+
+  // Keyboard nav
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') goToStep(Math.min(currentStep + 1, 4));
+    if (e.key === 'ArrowLeft') goToStep(Math.max(currentStep - 1, 0));
+  });
+</script>
+
+</body>
+</html>
