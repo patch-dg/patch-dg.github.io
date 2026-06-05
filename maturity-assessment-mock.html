@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kyōdō — Maturity Assessment Mock</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #F0F2F5;
+      color: #1A1A2E;
+      padding: 32px 28px;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      margin-bottom: 28px;
+    }
+    header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      margin-bottom: 4px;
+    }
+    header p {
+      font-size: 13px;
+      color: #888;
+    }
+
+    /* ── Team selector ── */
+    .selector-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .selector-bar label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+    }
+    .selector-bar select {
+      font-size: 13px;
+      padding: 7px 12px;
+      border: 1px solid #DDE1E7;
+      border-radius: 7px;
+      background: white;
+      color: #1A1A2E;
+      cursor: pointer;
+      outline: none;
+      appearance: none;
+      padding-right: 28px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+    .selector-bar select:focus {
+      border-color: #4B8BBE;
+      box-shadow: 0 0 0 3px rgba(75,139,190,0.12);
+    }
+
+    /* ── Layout grid ── */
+    .top-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 12px rgba(0,0,0,0.04);
+    }
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: #AAB0BB;
+      margin-bottom: 3px;
+    }
+    .card-subtitle {
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 18px;
+    }
+
+    /* ── Axis legend ── */
+    .axis-legend {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: #555;
+      font-weight: 500;
+    }
+    .legend-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+
+    /* ── Radar canvas ── */
+    .radar-wrap {
+      position: relative;
+      height: 270px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .radar-wrap canvas {
+      max-height: 270px;
+    }
+
+    /* ── Not yet measurable callout ── */
+    .not-measurable {
+      margin-top: 14px;
+      padding: 10px 14px;
+      background: #F7F8FA;
+      border-radius: 7px;
+      border-left: 3px solid #D8DBE0;
+    }
+    .not-measurable .nm-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #AAB0BB;
+      margin-bottom: 5px;
+    }
+    .not-measurable .nm-item {
+      font-size: 11px;
+      color: #AAB0BB;
+      padding: 2px 0;
+    }
+
+    /* ── Axis summary bars ── */
+    .axis-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .axis-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .axis-name {
+      font-size: 12px;
+      font-weight: 700;
+      width: 112px;
+      flex-shrink: 0;
+    }
+    .axis-track {
+      flex: 1;
+      background: #F0F2F5;
+      border-radius: 6px;
+      height: 8px;
+      overflow: hidden;
+    }
+    .axis-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .axis-score-label {
+      font-size: 12px;
+      font-weight: 700;
+      width: 34px;
+      text-align: right;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid #F0F2F5;
+      margin: 18px 0;
+    }
+
+    /* ── Intervention block ── */
+    .intervention-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: #AAB0BB;
+      margin-bottom: 8px;
+    }
+    .intervention-text {
+      font-size: 13px;
+      color: #444;
+      line-height: 1.65;
+    }
+    .intervention-text strong {
+      font-weight: 700;
+    }
+
+    /* ── Heat map ── */
+    .heatmap-wrap {
+      overflow-x: auto;
+    }
+    table.heatmap {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    table.heatmap thead th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #AAB0BB;
+      padding: 0 14px 12px 14px;
+      white-space: nowrap;
+    }
+    table.heatmap thead th.axis-col {
+      text-align: center;
+    }
+    table.heatmap tbody tr {
+      border-top: 1px solid #F5F6F8;
+    }
+    table.heatmap tbody tr:first-child {
+      border-top: none;
+    }
+    table.heatmap tbody td {
+      padding: 11px 14px;
+      vertical-align: middle;
+    }
+    table.heatmap tbody td.team-name {
+      font-weight: 600;
+      font-size: 13px;
+      color: #333;
+      white-space: nowrap;
+    }
+    table.heatmap tbody td.score-cell {
+      text-align: center;
+    }
+    .score-badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 5px;
+      min-width: 42px;
+      text-align: center;
+    }
+    .l1 { background: #FDECEA; color: #C0392B; }
+    .l2 { background: #FEF3E2; color: #B7770D; }
+    .l3 { background: #EAF5EA; color: #1E8449; }
+    .l4 { background: #D5EFD5; color: #145A32; }
+    .lhalf { background: #FEF3E2; color: #B7770D; } /* for L1.5, L2.5 */
+
+    /* ── Stage scale legend ── */
+    .scale-legend {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .scale-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: #777;
+    }
+    .scale-badge-sm {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    @media (max-width: 760px) {
+      .top-grid { grid-template-columns: 1fr; }
+      body { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Maturity Assessment</h1>
+    <p>baseline diagnostic &nbsp;·&nbsp; Visual reference mock &nbsp;·&nbsp; June 2026</p>
+  </header>
+
+  <div class="selector-bar">
+    <label for="teamSelect">Team view:</label>
+    <select id="teamSelect" onchange="updateTeamView()">
+      <option>ISMS Baseline</option>
+      <option>ISMS rev.1</option>
+      <option>ISMS rev.2</option>
+      <option>ISMS rev.3</option>
+    </select>
+  </div>
+
+  <div class="top-grid">
+
+    <!-- Spider chart -->
+    <div class="card">
+      <div class="card-title">Team diagnostic</div>
+      <div class="card-subtitle" id="spiderSubtitle">ISMS Baseline — Baseline spider chart</div>
+
+      <div class="axis-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#4B8BBE"></div>People</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#E07832"></div>Process</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#2EAA8A"></div>Data & Tooling</div>
+      </div>
+
+      <div class="radar-wrap">
+        <canvas id="radarChart"></canvas>
+      </div>
+
+  
+    </div>
+
+    <!-- Axis diagnostic -->
+    <div class="card">
+      <div class="card-title">Axis diagnostic</div>
+      <div class="card-subtitle">Main PPDT Axis — average score per axis</div>
+
+      <div class="axis-bars" id="axisBars"></div>
+
+      <hr class="divider">
+
+      <div class="intervention-title">Intervention priority</div>
+      <div class="intervention-text" id="interventionText"></div>
+    </div>
+
+  </div>
+
+  <!-- CSMT heat map -->
+  <div class="card">
+    <div class="card-title">Programme view — CSMT</div>
+    <div class="card-subtitle">All teams &nbsp;·&nbsp; Main PPDT Axis scores &nbsp;·&nbsp; Baseline</div>
+
+    <div class="heatmap-wrap">
+      <table class="heatmap">
+        <thead>
+          <tr>
+            <th>Team</th>
+            <th class="axis-col" style="color:#4B8BBE">People</th>
+            <th class="axis-col" style="color:#E07832">Process</th>
+            <th class="axis-col" style="color:#2EAA8A">Data & Tooling</th>
+          </tr>
+        </thead>
+        <tbody id="heatmapBody"></tbody>
+      </table>
+    </div>
+
+    <div class="scale-legend">
+      <div class="scale-item"><span class="score-badge scale-badge-sm l1">L1</span> Unaware</div>
+      <div class="scale-item"><span class="score-badge scale-badge-sm l2">L2</span> Aware</div>
+      <div class="scale-item"><span class="score-badge scale-badge-sm l3">L3</span> Fluent</div>
+      <div class="scale-item"><span class="score-badge scale-badge-sm l4">L4</span> Ambassador</div>
+    </div>
+  </div>
+
+  <script>
+    /* ── Data ── */
+    const AXIS_COLORS = { people: '#4B8BBE', process: '#E07832', dataTooling: '#2EAA8A' };
+
+    // 5 baseline dimensions only (3 tertiary excluded)
+    const DIMS = [
+      { label: 'Training &\nAwareness',      axis: 'people'      },
+      { label: 'Documentation',               axis: 'process'     },
+      { label: 'Data Quality',                axis: 'dataTooling' },
+      { label: 'Roles &\nResponsibilities',   axis: 'people'      },
+      { label: 'Process\nIntegration',        axis: 'process'     },
+    ];
+
+    const TEAMS = {
+      'ISMS Baseline':      { scores: [1, 1, 1, 2, 1], axes: { people: 1.5,   process: 1, dataTooling: 1   } },
+      'ISMS rev.1':                  { scores: [1, 1, 2, 2, 2], axes: { people: 1.5,   process: 1.5, dataTooling: 2   } },
+      'ISMS rev.2':                   { scores: [2, 2, 2, 2, 2], axes: { people: 2,   process: 2, dataTooling: 2   } },
+      'ISMS rev.3':  { scores: [4, 3, 3, 4, 3], axes: { people: 4,   process: 3,   dataTooling: 3   } },
+    };
+
+    const INTERVENTIONS = {
+      people:      'People are the priority axis. Awareness and accountability are inconsistent — targeted onboarding and Champion activation should come before tooling or process work.',
+      process:     'Process is the priority axis. Risk management is disconnected from delivery. The focus should be embedding identification into project kick-offs and supplier assessments.',
+      dataTooling: 'Data & Tooling is the critical gap. Records are fragmented or absent. Getting risks into a structured format is the prerequisite before people or process improvements will stick.',
+    };
+
+    /* ── Helpers ── */
+    function scoreLabel(s) {
+      return s % 1 === 0 ? `L${s}` : `L${s.toFixed(1)}`;
+    }
+
+    function scoreBadgeClass(s) {
+      const r = Math.round(s);
+      return ['', 'l1', 'l2', 'l3', 'l4'][r] || 'l1';
+    }
+
+    function lowestAxis(axes) {
+      return Object.entries(axes).sort((a, b) => a[1] - b[1])[0][0];
+    }
+
+    /* ── Radar chart ── */
+    let radarChart;
+
+    function buildRadar(teamName) {
+      const team = TEAMS[teamName];
+      const pointColors = DIMS.map(d => AXIS_COLORS[d.axis]);
+
+      if (radarChart) radarChart.destroy();
+
+      radarChart = new Chart(document.getElementById('radarChart'), {
+        type: 'radar',
+        data: {
+          labels: DIMS.map(d => d.label),
+          datasets: [{
+            label: teamName,
+            data: team.scores,
+            backgroundColor: 'rgba(74,139,190,0.08)',
+            borderColor: 'rgba(74,139,190,0.55)',
+            borderWidth: 2,
+            pointBackgroundColor: pointColors,
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              min: 0,
+              max: 4,
+              ticks: {
+                stepSize: 1,
+                font: { size: 10 },
+                color: '#BCC0C8',
+                backdropColor: 'transparent',
+                callback: v => v > 0 ? `L${v}` : '',
+              },
+              grid: { color: '#ECEEF2' },
+              angleLines: { color: '#ECEEF2' },
+              pointLabels: {
+                font: { size: 11, weight: '600', family: '-apple-system, BlinkMacSystemFont, sans-serif' },
+                color: DIMS.map(d => AXIS_COLORS[d.axis]),
+              }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1A1A2E',
+              titleFont: { size: 12 },
+              bodyFont: { size: 12 },
+              padding: 10,
+              callbacks: {
+                title: () => teamName,
+                label: ctx => ` ${scoreLabel(ctx.raw)}  —  ${DIMS[ctx.dataIndex].label.replace('\n', ' ')}`,
+              }
+            }
+          }
+        }
+      });
+    }
+
+    /* ── Axis bars ── */
+    function buildAxisBars(teamName) {
+      const { axes } = TEAMS[teamName];
+      const config = [
+        { key: 'people',      label: 'People',         score: axes.people      },
+        { key: 'process',     label: 'Process',         score: axes.process     },
+        { key: 'dataTooling', label: 'Data & Tooling',  score: axes.dataTooling },
+      ];
+      const lowest = lowestAxis(axes);
+
+      document.getElementById('axisBars').innerHTML = config.map(a => `
+        <div class="axis-row">
+          <div class="axis-name" style="color:${AXIS_COLORS[a.key]}">
+            ${a.label}${a.key === lowest ? ' ◄' : ''}
+          </div>
+          <div class="axis-track">
+            <div class="axis-fill" style="background:${AXIS_COLORS[a.key]};width:${(a.score/4)*100}%"></div>
+          </div>
+          <div class="axis-score-label" style="color:${AXIS_COLORS[a.key]}">${scoreLabel(a.score)}</div>
+        </div>
+      `).join('');
+    }
+
+    /* ── Intervention ── */
+    function buildIntervention(teamName) {
+      const { axes } = TEAMS[teamName];
+      const key = lowestAxis(axes);
+      const color = AXIS_COLORS[key];
+      const labels = { people: 'People', process: 'Process', dataTooling: 'Data & Tooling' };
+
+      document.getElementById('interventionText').innerHTML =
+        `<strong style="color:${color}">${labels[key]}</strong> is the priority axis (${scoreLabel(axes[key])}). ${INTERVENTIONS[key]}`;
+    }
+
+    /* ── Heat map ── */
+    function buildHeatmap() {
+      document.getElementById('heatmapBody').innerHTML =
+        Object.entries(TEAMS).map(([name, { axes }]) => `
+          <tr>
+            <td class="team-name">${name}</td>
+            <td class="score-cell"><span class="score-badge ${scoreBadgeClass(axes.people)}">${scoreLabel(axes.people)}</span></td>
+            <td class="score-cell"><span class="score-badge ${scoreBadgeClass(axes.process)}">${scoreLabel(axes.process)}</span></td>
+            <td class="score-cell"><span class="score-badge ${scoreBadgeClass(axes.dataTooling)}">${scoreLabel(axes.dataTooling)}</span></td>
+          </tr>
+        `).join('');
+    }
+
+    /* ── Update on team change ── */
+    function updateTeamView() {
+      const name = document.getElementById('teamSelect').value;
+      document.getElementById('spiderSubtitle').textContent = `${name} — Baseline spider chart`;
+      buildRadar(name);
+      buildAxisBars(name);
+      buildIntervention(name);
+    }
+
+    /* ── Init ── */
+    updateTeamView();
+    buildHeatmap();
+  </script>
+</body>
+</html>
